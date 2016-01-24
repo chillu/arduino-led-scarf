@@ -181,15 +181,21 @@ int getMagnitude() {
   return avgMag;
 }
 
-void loop() { 
+void loopHeartRate() {
   offset = (offset + 1) % beatLength;
 
 //  serialOutput();
   if (pulseFound == true) {
 //    serialOutputWhenBeatHappens();
     bpm = pulseBpm;
+    digitalWrite(CTRL_LED_RED_PIN, HIGH);
+    digitalWrite(CTRL_LED_GREEN_PIN, LOW);
+    digitalWrite(CTRL_LED_BLUE_PIN, HIGH);
   } else {
     bpm = staticBpm;
+    digitalWrite(CTRL_LED_RED_PIN, LOW);
+    digitalWrite(CTRL_LED_GREEN_PIN, HIGH);
+    digitalWrite(CTRL_LED_BLUE_PIN, HIGH);
   }
 
   if (pulseBeatFound == true){
@@ -200,12 +206,70 @@ void loop() {
 
   int i;
   for (i=0;i<movesPerBeat;i++){
-    delay((float) 1 / bpm * 60 * 1000 / beatLength / movesPerBeat);
+    // Delay in milliseconds. BPM are measured by minute, so divide accordingly.
+    delay((float) 1 / (bpm * 60 * 1000) / beatLength / movesPerBeat);
     moveBuffer();
     draw();
   }
 
-  if(offset % round(beatLength/4) == 0) {
+  // Mesure only a few times per beat to avoid slowdowns
+  if(offset % round(beatLength/samplePerBeat) == 0) {
     calcAdjustedMagnitude(); 
   }
+}
+
+void fadeall() { 
+  for(int i = 0; i < NUM_LEDS_CH1; i++) { leds1[i].nscale8(250); } 
+}
+
+void loopCylon() {
+  static uint8_t hue = 0;
+
+  // First slide the led in one direction
+  for(int i = 0; i < NUM_LEDS_CH1; i++) {
+    // Set the i'th led to red 
+    leds1[i] = CHSV(hue++, 255, 255);
+    // Show the leds
+    FastLED.show(); 
+    // now that we've shown the leds, reset the i'th led to black
+    // leds1[i] = CRGB::Black;
+    fadeall();
+    // Wait a little bit before we loop around and do it again
+    delay(10);
+  }
+
+  // Now go in the other direction.  
+  for(int i = (NUM_LEDS_CH1)-1; i >= 0; i--) {
+    // Set the i'th led to red 
+    leds1[i] = CHSV(hue++, 255, 255);
+    // Show the leds
+    FastLED.show();
+    // now that we've shown the leds, reset the i'th led to black
+    // leds1[i] = CRGB::Black;
+    fadeall();
+    // Wait a little bit before we loop around and do it again
+    delay(10);
+  }
+}
+
+void loop() { 
+  // Check for mode changes
+  modeButton.update();
+  int modeButtonVal = modeButton.read();
+  if(modeButtonVal == LOW) {
+    mode = (mode % 2) + 1;
+  }
+
+  // default to all off (high)
+  digitalWrite(CTRL_LED_GREEN_PIN, HIGH);
+  digitalWrite(CTRL_LED_BLUE_PIN, HIGH);
+  digitalWrite(CTRL_LED_RED_PIN, HIGH);
+
+  // Activate effect based on mode
+  if(mode == 1) {
+    loopHeartRate();
+  } else if (mode == 2) {
+    loopCylon();
+  }
+
 }
