@@ -193,15 +193,12 @@ void loopHeartRate() {
     digitalWrite(CTRL_LED_BLUE_PIN, HIGH);
   } else {
     bpm = staticBpm;
-    digitalWrite(CTRL_LED_RED_PIN, LOW);
-    digitalWrite(CTRL_LED_GREEN_PIN, HIGH);
-    digitalWrite(CTRL_LED_BLUE_PIN, HIGH);
   }
 
   if (pulseBeatFound == true){
 //    serialOutputWhenBeatHappens();
     pulseBeatFound = false;
-    Serial.println(bpm);
+//    Serial.println(bpm);
   }
 
   int i;
