@@ -127,8 +127,9 @@ void draw() {
   }
 
   // Channel 2
+  int halfPoint = (int)sizeof(bufr)/2;
   for (i=0;i<NUM_LEDS_CH2;i++){
-      leds2[i] = CHSV(hue, bufr[0], bufr[0]/brightnessFactor);
+      leds2[i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/brightnessFactor);
   }
   
   FastLED.show();
