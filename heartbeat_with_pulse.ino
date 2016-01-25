@@ -35,12 +35,14 @@ Bounce modeButton;
 // config
 int staticBpm = 70; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
 byte beat[]  = {3,2,2,2,2,3,4,3,2,1,0,15,2,2,3,4,6,8,5,3,3,3};
+byte beat[]  = {2,2,2,2,3,4,3,2,1,0,12,2,2,3,4,6,8,5,3,3,3,3};
 byte beatLength = 22;
 int movesPerBeat = 8;
 int minMagnitude = 80;
 int maxMagnitude = 150;
 int minBrightness = 180; // from 0-255
 int maxBrightness = 255; // from 0-255
+int beatMaxIntensity = max(beat);
 int minHue = 160; // hue value under low motion
 int maxHue = 255; // hue value under high motion
 int gainRatePerBeat = 200; // value change towards new target value (percent*100 per beat, e.g 200 = 20%)
@@ -101,7 +103,7 @@ void updateModeFromEEPRON() {
 
 void moveBuffer() {
   int i;
-  byte c = (int) beat[offset] * 255 / beatLength;
+  byte c = (int) beat[offset] * 255 / beatMaxIntensity;
   int midPoint = NUM_LEDS_CH1/2;
 
   // Move current beat intensity from middle to beginning of strip (backward in buffer)
