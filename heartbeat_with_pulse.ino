@@ -50,8 +50,9 @@ int samplePerBeat = 2;
 int bpm = staticBpm;
 byte bufr[NUM_LEDS_CH1];
 byte offset = 0;
-int targetMagnitude = minMagnitude;
-int adjustedMagnitude = minMagnitude;
+int currentMagnitude;
+int targetMagnitude = maxMagnitude;
+int adjustedMagnitude = maxMagnitude;
 
 // pulse config
 static boolean serialVisual = false;   // Set to 'false' by Default.  Re-set to 'true' to see Arduino Serial Monitor ASCII Visual Pulse 
@@ -136,22 +137,33 @@ void draw() {
 }
 
 int calcAdjustedMagnitude() {
+  int newMagnitude = getMagnitude();
+  int magnitudeDiff = abs(currentMagnitude - newMagnitude);
+  
   // Get new target (smoothed out over a couple of readings)
   targetMagnitude = max(
-    constrain(getMagnitude(), minMagnitude, maxMagnitude), 
+    constrain(magnitudeDiff, minMagnitude, maxMagnitude), 
     targetMagnitude
   );
   
-  // Slowly work towards new target
+  // Slowly work towards new target (either increasing or decreasing)
   if(adjustedMagnitude <= targetMagnitude) {
     adjustedMagnitude = constrain(
-      (targetMagnitude*100 + gainRatePerBeat) / 100, 
+      constrain(
+        targetMagnitude + (targetMagnitude*(gainRatePerBeat/100)), 
+        minMagnitude,
+        maxMagnitude
+      ),
       minMagnitude, 
       maxMagnitude
     );
   } else {
     adjustedMagnitude = constrain(
-      (targetMagnitude*100 - gainRatePerBeat) / 100, 
+      constrain(
+        targetMagnitude - (targetMagnitude*(gainRatePerBeat/100)), 
+        minMagnitude,
+        maxMagnitude
+      ),
       minMagnitude, 
       maxMagnitude
     );
@@ -159,10 +171,19 @@ int calcAdjustedMagnitude() {
 
   // Slowly decay max target
   targetMagnitude = constrain(
-    (targetMagnitude*100 - decayRatePerBeat) / 100, 
+    targetMagnitude - (targetMagnitude*(decayRatePerBeat/100)), 
     minMagnitude, 
     maxMagnitude
   );
+//
+//  Serial.print(magnitudeDiff);
+//  Serial.print("\t");
+//  Serial.print(targetMagnitude);
+//  Serial.print("\t");
+//  Serial.print(adjustedMagnitude);
+//  Serial.println();
+  
+  currentMagnitude = newMagnitude;
 }
 
 // Get a magnitude across all vectors.
