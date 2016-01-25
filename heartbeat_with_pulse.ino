@@ -1,5 +1,6 @@
 #include <Bounce2.h>
 #include "FastLED.h"
+#include <EEPROM.h>
 
 /*
  * Heartbeat simulator
@@ -28,6 +29,7 @@
 
 // ui
 int mode = 1;
+int modeCount = 2;
 Bounce modeButton;
 
 // config
@@ -69,18 +71,32 @@ CRGB leds1[NUM_LEDS_CH1];
 CRGB leds2[NUM_LEDS_CH2];
 
 void setup() { 
-      FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds1, NUM_LEDS_CH1);
-      FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds2, NUM_LEDS_CH2);
-      Serial.begin(BAUD_RATE);
-      interruptSetup();
+  FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds1, NUM_LEDS_CH1);
+  FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds2, NUM_LEDS_CH2);
+  Serial.begin(BAUD_RATE);
+  interruptSetup();
 
-      pinMode(CTRL_LED_RED_PIN, OUTPUT);
-      pinMode(CTRL_LED_GREEN_PIN, OUTPUT);
-      pinMode(CTRL_LED_BLUE_PIN, OUTPUT);
-      pinMode(BUTTON_PIN, INPUT_PULLUP);
-      
-      modeButton.attach(BUTTON_PIN);
-      modeButton.interval(5);
+  pinMode(CTRL_LED_RED_PIN, OUTPUT);
+  pinMode(CTRL_LED_GREEN_PIN, OUTPUT);
+  pinMode(CTRL_LED_BLUE_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  
+  modeButton.attach(BUTTON_PIN);
+  modeButton.interval(50);
+
+  updateModeFromEEPROM();
+}
+
+// Cycle mode in persistent memory on every on switch.
+// More resilient against hardware failures than a button.
+void updateModeFromEEPRON() {
+  mode = EEPROM.read(0);
+  if(!mode) {
+    mode = 1;
+  }
+  mode = (mode % modeCount) + 1;
+  
+  EEPROM.write(0, mode);
 }
 
 void moveBuffer() {
@@ -271,13 +287,16 @@ void loopCylon() {
   }
 }
 
-void loop() { 
-  // Check for mode changes
+void updateModeFromButton() {
   modeButton.update();
-  int modeButtonVal = modeButton.read();
-  if(modeButtonVal == LOW) {
+  if(modeButton.fell()) {
     mode = (mode % 2) + 1;
   }
+}
+
+void loop() { 
+  // TODO Fix button noise
+//  updateModeFromButton();
 
   // default to all off (high)
   digitalWrite(CTRL_LED_GREEN_PIN, HIGH);
