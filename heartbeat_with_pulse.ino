@@ -33,22 +33,22 @@ int modeCount = 2;
 Bounce modeButton;
 
 // config
-int staticBpm = 70; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
-byte beat[]  = {3,2,2,2,2,3,4,3,2,1,0,15,2,2,3,4,6,8,5,3,3,3};
+int staticBpm = 60; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
+int maxBpm = 180; // avoids the system going crazy
 byte beat[]  = {2,2,2,2,3,4,3,2,1,0,12,2,2,3,4,6,8,5,3,3,3,3};
 byte beatLength = 22;
-int movesPerBeat = 8;
-int minMagnitude = 80;
-int maxMagnitude = 150;
-int minBrightness = 180; // from 0-255
-int maxBrightness = 255; // from 0-255
-int beatMaxIntensity = max(beat);
-int minHue = 160; // hue value under low motion
-int maxHue = 255; // hue value under high motion
-int gainRatePerBeat = 200; // value change towards new target value (percent*100 per beat, e.g 200 = 20%)
-int decayRatePerBeat = 3  ; // percent change towards new target per beat
+int beatMaxIntensity = 12; // max value in beat array
+int movesPerBeat = 4;
+int minMagnitude = 0;
+int maxMagnitude = 50; // max difference between two magnitude measurements from accelerometer at which we show maxHue
+int minBrightness = 150; // from 0-255
+int maxBrightness = 200; // from 0-255
+int minHue = 160; // hue value under low motion, as defined through minMagnitude (from 0-255)
+int maxHue = 255; // hue value under high motion, as defined through maxMagnitude (from 0-255)
+int gainRatePerBeat = 6; // change towards new target magnitude
+int decayRatePerBeat = 2; // move back towards minMagnitude
 int sampleSize = 8; // smooth out accelerometer readings
-int samplePerBeat = 2;
+int samplePerBeat = 1;
 
 // state
 int bpm = staticBpm;
@@ -136,19 +136,19 @@ void draw() {
     adjustedMagnitude,
     minMagnitude,
     maxMagnitude,
-    3, 
-    1
+    400, 
+    200
   );
-
+  
   // Channel 1
   for (i=0;i<NUM_LEDS_CH1;i++){
-      leds1[i] = CHSV(hue, bufr[i], bufr[i]/brightnessFactor);
+      leds1[i] = CHSV(hue, bufr[i], bufr[i]/(brightnessFactor/100));
   }
 
   // Channel 2
   int halfPoint = (int)sizeof(bufr)/2;
   for (i=0;i<NUM_LEDS_CH2;i++){
-      leds2[i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/brightnessFactor);
+      leds2[i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/(brightnessFactor/100));
   }
   
   FastLED.show();
@@ -168,7 +168,7 @@ int calcAdjustedMagnitude() {
   if(adjustedMagnitude <= targetMagnitude) {
     adjustedMagnitude = constrain(
       constrain(
-        targetMagnitude + (targetMagnitude*(gainRatePerBeat/100)), 
+        targetMagnitude + gainRatePerBeat, 
         minMagnitude,
         maxMagnitude
       ),
@@ -178,7 +178,7 @@ int calcAdjustedMagnitude() {
   } else {
     adjustedMagnitude = constrain(
       constrain(
-        targetMagnitude - (targetMagnitude*(gainRatePerBeat/100)), 
+        targetMagnitude - gainRatePerBeat, 
         minMagnitude,
         maxMagnitude
       ),
@@ -188,12 +188,13 @@ int calcAdjustedMagnitude() {
   }
 
   // Slowly decay max target
+  targetMagnitude = targetMagnitude - decayRatePerBeat;
   targetMagnitude = constrain(
-    targetMagnitude - (targetMagnitude*(decayRatePerBeat/100)), 
+    targetMagnitude,
     minMagnitude, 
     maxMagnitude
   );
-//
+
 //  Serial.print(magnitudeDiff);
 //  Serial.print("\t");
 //  Serial.print(targetMagnitude);
@@ -225,7 +226,7 @@ void loopHeartRate() {
   offset = (offset + 1) % beatLength;
 
 //  serialOutput();
-  if (pulseFound == true) {
+  if (pulseFound == true && bpm <= maxBpm) {
 //    serialOutputWhenBeatHappens();
     bpm = pulseBpm;
     digitalWrite(CTRL_LED_RED_PIN, HIGH);
@@ -249,7 +250,7 @@ void loopHeartRate() {
     draw();
   }
 
-  // Mesure only a few times per beat to avoid slowdowns
+  // Measure only a few times per beat to avoid slowdowns
   if(offset % round(beatLength/samplePerBeat) == 0) {
     calcAdjustedMagnitude(); 
   }
