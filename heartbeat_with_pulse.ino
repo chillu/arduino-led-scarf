@@ -13,19 +13,19 @@
  * And for lending me some Neopixels to play around with!
  */
  
-#define BAUD_RATE 57600
+#define BAUD_RATE 9600
 #define NUM_LEDS_CH1 120
-#define LED_PIN_CH1 12
+#define LED_PIN_CH1 6
 #define NUM_LEDS_CH2 29
-#define LED_PIN_CH2 7
-#define ACCELX_PIN 0
+#define LED_PIN_CH2 2
+#define ACCELX_PIN 1
 #define ACCELY_PIN 2
-#define ACCELZ_PIN 4
-#define PULSE_PIN 6
+#define ACCELZ_PIN 3
+#define PULSE_PIN 5
 #define CTRL_LED_RED_PIN 9
 #define CTRL_LED_GREEN_PIN 4
 #define CTRL_LED_BLUE_PIN 3
-#define BUTTON_PIN 2
+#define BUTTON_PIN 4
 
 // ui
 int mode = 1;
