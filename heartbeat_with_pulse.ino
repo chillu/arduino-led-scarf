@@ -91,7 +91,7 @@ void setup() {
 
 // Cycle mode in persistent memory on every on switch.
 // More resilient against hardware failures than a button.
-void updateModeFromEEPRON() {
+void updateModeFromEEPROM() {
   mode = EEPROM.read(0);
   if(!mode) {
     mode = 1;
