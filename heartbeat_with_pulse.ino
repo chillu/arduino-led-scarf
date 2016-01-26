@@ -29,7 +29,7 @@
 
 // ui
 int mode = 1;
-int modeCount = 2;
+int modeCount = 6;
 Bounce modeButton;
 
 // config
@@ -69,12 +69,14 @@ volatile boolean pulseFound = false; // "True" when User's live heartbeat is det
 volatile boolean pulseBeatFound = false; // becomes true when Arduoino finds a beat.
 volatile boolean hasPulse = false; // 
 
-CRGB leds1[NUM_LEDS_CH1];
-CRGB leds2[NUM_LEDS_CH2];
+#define BRIGHTNESS          96
+#define FRAMES_PER_SECOND  120
+
+CRGB leds[2][NUM_LEDS_CH1];
 
 void setup() { 
-  FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds1, NUM_LEDS_CH1);
-  FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds2, NUM_LEDS_CH2);
+  FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds[0], NUM_LEDS_CH1);
+  FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds[1], NUM_LEDS_CH2);
   Serial.begin(BAUD_RATE);
   interruptSetup();
 
@@ -88,6 +90,9 @@ void setup() {
 
   updateModeFromEEPROM();
 }
+
+// other pattern config
+uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 // Cycle mode in persistent memory on every on switch.
 // More resilient against hardware failures than a button.
@@ -142,13 +147,13 @@ void draw() {
   
   // Channel 1
   for (i=0;i<NUM_LEDS_CH1;i++){
-      leds1[i] = CHSV(hue, bufr[i], bufr[i]/(brightnessFactor/100));
+      leds[0][i] = CHSV(hue, bufr[i], bufr[i]/(brightnessFactor/100));
   }
 
   // Channel 2
   int halfPoint = (int)sizeof(bufr)/2;
   for (i=0;i<NUM_LEDS_CH2;i++){
-      leds2[i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/(brightnessFactor/100));
+      leds[1][i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/(brightnessFactor/100));
   }
   
   FastLED.show();
@@ -257,45 +262,92 @@ void loopHeartRate() {
 }
 
 void fadeall() { 
-  for(int i = 0; i < NUM_LEDS_CH1; i++) { leds1[i].nscale8(250); } 
+  for(int i = 0; i < NUM_LEDS_CH1; i++) { leds[0][i].nscale8(250); } 
 }
 
-void loopCylon() {
+void cylon(int ledIndex, int num) {
   static uint8_t hue = 0;
 
   // First slide the led in one direction
-  for(int i = 0; i < NUM_LEDS_CH1; i++) {
+  for(int i = 0; i < num; i++) {
     // Set the i'th led to red 
-    leds1[i] = CHSV(hue++, 255, 255);
+    leds[ledIndex][i] = CHSV(hue++, 255, 255);
     // Show the leds
     FastLED.show(); 
     // now that we've shown the leds, reset the i'th led to black
-    // leds1[i] = CRGB::Black;
+    // leds[0][i] = CRGB::Black;
     fadeall();
     // Wait a little bit before we loop around and do it again
-    delay(10);
+    delay(5);
   }
 
   // Now go in the other direction.  
-  for(int i = (NUM_LEDS_CH1)-1; i >= 0; i--) {
+  for(int i = (num)-1; i >= 0; i--) {
     // Set the i'th led to red 
-    leds1[i] = CHSV(hue++, 255, 255);
+    leds[ledIndex][i] = CHSV(hue++, 255, 255);
     // Show the leds
     FastLED.show();
     // now that we've shown the leds, reset the i'th led to black
-    // leds1[i] = CRGB::Black;
+    // leds[0][i] = CRGB::Black;
     fadeall();
     // Wait a little bit before we loop around and do it again
-    delay(10);
+    delay(5);
   }
 }
 
 void updateModeFromButton() {
   modeButton.update();
   if(modeButton.fell()) {
-    mode = (mode % 2) + 1;
+    mode = (mode % modeCount) + 1;
   }
 }
+
+void rainbow(int ledIndex, int num) 
+{
+  // FastLED's built-in rainbow generator
+  fill_rainbow( leds[ledIndex], num, gHue, 7);
+}
+
+void rainbowWithGlitter(int ledIndex, int num) 
+{
+  // built-in FastLED rainbow, plus some random sparkly glitter
+  rainbow(ledIndex, num);
+  addGlitter(80, ledIndex, num);
+}
+
+void addGlitter( fract8 chanceOfGlitter, int ledIndex, int num) 
+{
+  if( random8() < chanceOfGlitter) {
+    leds[ledIndex][ random16(num) ] += CRGB::White;
+  }
+}
+
+void confetti(int ledIndex, int num) 
+{
+  // random colored speckles that blink in and fade smoothly
+  fadeToBlackBy( leds[ledIndex], num, 10);
+  int pos = random16(num);
+  leds[ledIndex][pos] += CHSV( gHue + random8(64), 200, 255);
+}
+
+void sinelon(int ledIndex, int num)
+{
+  // a colored dot sweeping back and forth, with fading trails
+  fadeToBlackBy( leds[ledIndex], num, 20);
+  int pos = beatsin16(13,0,num);
+  leds[ledIndex][pos] += CHSV( gHue, 255, 192);
+}
+
+void juggle(int ledIndex, int num) {
+  // eight colored dots, weaving in and out of sync with each other
+  fadeToBlackBy( leds[ledIndex], num, 20);
+  byte dothue = 0;
+  for( int i = 0; i < 8; i++) {
+    leds[ledIndex][beatsin16(i+7,0,num)] |= CHSV(dothue, 200, 255);
+    dothue += 32;
+  }
+}
+
 
 void loop() { 
   // TODO Fix button noise
@@ -310,7 +362,33 @@ void loop() {
   if(mode == 1) {
     loopHeartRate();
   } else if (mode == 2) {
-    loopCylon();
+  } else if (mode == 3) {
+    FastLED.setBrightness(BRIGHTNESS);
+    confetti(0, NUM_LEDS_CH1);
+    confetti(1, NUM_LEDS_CH2);
+    FastLED.show();  
+    FastLED.delay(1000/FRAMES_PER_SECOND); 
+    EVERY_N_MILLISECONDS( 20 ) { gHue++; }
+  } else if (mode == 4) {
+    FastLED.setBrightness(BRIGHTNESS);
+    sinelon(0, NUM_LEDS_CH1);
+    sinelon(1, NUM_LEDS_CH2);
+    FastLED.show();  
+    FastLED.delay(1000/FRAMES_PER_SECOND); 
+    EVERY_N_MILLISECONDS( 20 ) { gHue++; }
+  } else if (mode == 5) {
+    FastLED.setBrightness(BRIGHTNESS);
+    juggle(0, NUM_LEDS_CH1);
+    juggle(1, NUM_LEDS_CH2);
+    FastLED.show();  
+    FastLED.delay(1000/FRAMES_PER_SECOND); 
+    EVERY_N_MILLISECONDS( 20 ) { gHue++; }
+  }else if (mode == 6) {
+    FastLED.setBrightness(BRIGHTNESS);
+    cylon(0, NUM_LEDS_CH1);
+    cylon(1, NUM_LEDS_CH2);
   }
+
+
 
 }
