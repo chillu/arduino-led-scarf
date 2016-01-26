@@ -41,8 +41,8 @@ int beatMaxIntensity = 12; // max value in beat array
 int movesPerBeat = 4;
 int minMagnitude = 0;
 int maxMagnitude = 50; // max difference between two magnitude measurements from accelerometer at which we show maxHue
-int minBrightness = 150; // from 0-255
-int maxBrightness = 200; // from 0-255
+int minBrightnessDivisor= 150; // lower = brighter
+int maxBrightnessDivisor = 300; // higher = dimmer
 int minHue = 160; // hue value under low motion, as defined through minMagnitude (from 0-255)
 int maxHue = 255; // hue value under high motion, as defined through maxMagnitude (from 0-255)
 int gainRatePerBeat = 6; // change towards new target magnitude
@@ -141,8 +141,8 @@ void draw() {
     adjustedMagnitude,
     minMagnitude,
     maxMagnitude,
-    400, 
-    200
+    maxBrightnessDivisor, 
+    minBrightnessDivisor
   );
   
   // Channel 1
@@ -360,8 +360,15 @@ void loop() {
 
   // Activate effect based on mode
   if(mode == 1) {
+    // Bright pulse meter
+    minBrightnessDivisor = 150;
+    maxBrightnessDivisor = 300;
     loopHeartRate();
   } else if (mode == 2) {
+    // Less bright pulse meter
+    minBrightnessDivisor = 200;
+    maxBrightnessDivisor = 400;
+    loopHeartRate();
   } else if (mode == 3) {
     FastLED.setBrightness(BRIGHTNESS);
     confetti(0, NUM_LEDS_CH1);
