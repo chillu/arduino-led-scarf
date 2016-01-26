@@ -231,7 +231,7 @@ void loopHeartRate() {
   offset = (offset + 1) % beatLength;
 
 //  serialOutput();
-  if (pulseFound == true && bpm <= maxBpm) {
+  if (pulseFound == true && pulseBpm <= maxBpm) {
 //    serialOutputWhenBeatHappens();
     bpm = pulseBpm;
     digitalWrite(CTRL_LED_RED_PIN, HIGH);
