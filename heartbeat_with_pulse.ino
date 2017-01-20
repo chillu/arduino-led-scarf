@@ -75,7 +75,7 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds[0], NUM_LEDS_CH1);
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds[1], NUM_LEDS_CH2);
   Serial.begin(BAUD_RATE);
-  interruptSetup();
+ 
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   
   modeButton.attach(BUTTON_PIN);
