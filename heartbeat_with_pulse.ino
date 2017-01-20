@@ -22,9 +22,6 @@
 #define ACCELY_PIN 2
 #define ACCELZ_PIN 3
 #define PULSE_PIN 5
-#define CTRL_LED_RED_PIN 9
-#define CTRL_LED_GREEN_PIN 4
-#define CTRL_LED_BLUE_PIN 3
 #define BUTTON_PIN 4
 
 // ui
@@ -79,10 +76,6 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds[1], NUM_LEDS_CH2);
   Serial.begin(BAUD_RATE);
   interruptSetup();
-
-  pinMode(CTRL_LED_RED_PIN, OUTPUT);
-  pinMode(CTRL_LED_GREEN_PIN, OUTPUT);
-  pinMode(CTRL_LED_BLUE_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   
   modeButton.attach(BUTTON_PIN);
@@ -234,9 +227,6 @@ void loopHeartRate() {
   if (pulseFound == true && pulseBpm <= maxBpm) {
 //    serialOutputWhenBeatHappens();
     bpm = pulseBpm;
-    digitalWrite(CTRL_LED_RED_PIN, HIGH);
-    digitalWrite(CTRL_LED_GREEN_PIN, LOW);
-    digitalWrite(CTRL_LED_BLUE_PIN, HIGH);
   } else {
     bpm = staticBpm;
   }
@@ -352,11 +342,6 @@ void juggle(int ledIndex, int num) {
 void loop() { 
   // TODO Fix button noise
 //  updateModeFromButton();
-
-  // default to all off (high)
-  digitalWrite(CTRL_LED_GREEN_PIN, HIGH);
-  digitalWrite(CTRL_LED_BLUE_PIN, HIGH);
-  digitalWrite(CTRL_LED_RED_PIN, HIGH);
 
   // Activate effect based on mode
   if(mode == 1) {
