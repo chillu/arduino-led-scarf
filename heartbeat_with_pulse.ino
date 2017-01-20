@@ -350,13 +350,13 @@ void loop() {
   // Activate effect based on mode
   if(mode == 1) {
     // Bright pulse meter
-    minBrightnessDivisor = 150;
-    maxBrightnessDivisor = 300;
+    minBrightnessDivisor = 200;
+    maxBrightnessDivisor = 400;
     loopHeartRate();
   } else if (mode == 2) {
     // Less bright pulse meter
-    minBrightnessDivisor = 200;
-    maxBrightnessDivisor = 400;
+    minBrightnessDivisor = 300;
+    maxBrightnessDivisor = 600;
     loopHeartRate();
   } else if (mode == 3) {
     FastLED.setBrightness(BRIGHTNESS);
