@@ -208,9 +208,9 @@ int calcAdjustedMagnitude() {
 int getMagnitude() {
   float avgMag = 0;
   for(int x = 0 ; x < sampleSize ; x++) {
-    int aX = analogRead(ACCELX_PIN);
-    int aY = analogRead(ACCELY_PIN);
-    int aZ = analogRead(ACCELZ_PIN);
+    float aX = analogRead(ACCELX_PIN);
+    float aY = analogRead(ACCELY_PIN);
+    float aZ = analogRead(ACCELZ_PIN);
 
     float magnitude = sqrt((aX * aX) + (aY * aY) + (aZ * aZ));
     avgMag += magnitude;
