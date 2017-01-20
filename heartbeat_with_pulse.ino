@@ -231,10 +231,14 @@ void loopHeartRate() {
     bpm = staticBpm;
   }
 
+  // TODO Fix BPM noise
+  bpm = staticBpm;
+  
   if (pulseBeatFound == true){
+//    offset = 0;
 //    serialOutputWhenBeatHappens();
-    pulseBeatFound = false;
 //    Serial.println(bpm);
+    pulseBeatFound = false;
   }
 
   int i;
