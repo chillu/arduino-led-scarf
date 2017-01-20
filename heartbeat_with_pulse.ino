@@ -363,11 +363,6 @@ void loop() {
     maxBrightnessDivisor = 400;
     loopHeartRate();
   } else if (mode == 2) {
-    // Less bright pulse meter
-    minBrightnessDivisor = 300;
-    maxBrightnessDivisor = 600;
-    loopHeartRate();
-  } else if (mode == 3) {
     FastLED.setBrightness(brightness);
     confetti(0, NUM_LEDS_CH1);
     confetti(1, NUM_LEDS_CH2);
