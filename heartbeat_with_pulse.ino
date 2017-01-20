@@ -30,11 +30,11 @@ int modeCount = 6;
 Bounce modeButton;
 
 // config
-int staticBpm = 60; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
+int staticBpm = 60; // in case no pulse is found
 int maxBpm = 180; // avoids the system going crazy
 byte beat[]  = {2,2,2,2,3,4,3,2,1,0,10,2,2,3,4,6,8,5,3,3,3,3}; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
 byte beatLength = 22;
-int beatMaxIntensity = 12; // max value in beat array
+int beatMaxIntensity = 10; // max value in beat array
 int movesPerBeat = 4;
 int minMagnitude = 0;
 int maxMagnitude = 50; // max difference between two magnitude measurements from accelerometer at which we show maxHue
