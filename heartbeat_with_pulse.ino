@@ -270,39 +270,6 @@ void loopHeartRate() {
   }
 }
 
-void fadeall() { 
-  for(int i = 0; i < NUM_LEDS_CH1; i++) { leds[0][i].nscale8(250); } 
-}
-
-void cylon(int ledIndex, int num) {
-  static uint8_t hue = 0;
-
-  // First slide the led in one direction
-  for(int i = 0; i < num; i++) {
-    // Set the i'th led to red 
-    leds[ledIndex][i] = CHSV(hue++, 255, 255);
-    // Show the leds
-    FastLED.show(); 
-    // now that we've shown the leds, reset the i'th led to black
-    // leds[0][i] = CRGB::Black;
-    fadeall();
-    // Wait a little bit before we loop around and do it again
-    delay(5);
-  }
-
-  // Now go in the other direction.  
-  for(int i = (num)-1; i >= 0; i--) {
-    // Set the i'th led to red 
-    leds[ledIndex][i] = CHSV(hue++, 255, 255);
-    // Show the leds
-    FastLED.show();
-    // now that we've shown the leds, reset the i'th led to black
-    // leds[0][i] = CRGB::Black;
-    fadeall();
-    // Wait a little bit before we loop around and do it again
-    delay(5);
-  }
-}
 void rainbow(int ledIndex, int num) 
 {
   // FastLED's built-in rainbow generator
@@ -383,12 +350,6 @@ void loop() {
     FastLED.show();  
     FastLED.delay(1000/FRAMES_PER_SECOND); 
     EVERY_N_MILLISECONDS( 20 ) { gHue++; }
-  }else if (mode == 6) {
-    FastLED.setBrightness(BRIGHTNESS);
-    cylon(0, NUM_LEDS_CH1);
-    cylon(1, NUM_LEDS_CH2);
   }
-
-
 
 }
