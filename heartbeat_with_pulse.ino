@@ -32,7 +32,7 @@ Bounce modeButton;
 // config
 int staticBpm = 60; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
 int maxBpm = 180; // avoids the system going crazy
-byte beat[]  = {2,2,2,2,3,4,3,2,1,0,12,2,2,3,4,6,8,5,3,3,3,3};
+byte beat[]  = {2,2,2,2,3,4,3,2,1,0,10,2,2,3,4,6,8,5,3,3,3,3}; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
 byte beatLength = 22;
 int beatMaxIntensity = 12; // max value in beat array
 int movesPerBeat = 4;
