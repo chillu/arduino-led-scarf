@@ -2,35 +2,32 @@
 #include "FastLED.h"
 #include <EEPROM.h>
 
-/*
- * Heartbeat simulator
- * 
- * Shows a different hue and brightness based on accelerometer activity,
- * with the idea that low movement means colder and less bright colours,
- * with more movement turning it into warmer and brighter colours.
- * 
- * Credit to Ben Nolan for the heart beat LED logic.
- * And for lending me some Neopixels to play around with!
- */
- 
-#define BAUD_RATE 9600
-#define NUM_LEDS_CH1 120
+// Digital PINs
 #define LED_PIN_CH1 4
-#define NUM_LEDS_CH2 29
 #define LED_PIN_CH2 2
+#define MODE_BUTTON_PIN 6
+#define BRIGHTNESS_BUTTON_PIN 8
+#define BEAT_BUTTON_PIN 10
+
+// Analog PINs
 #define ACCELX_PIN 0
 #define ACCELY_PIN 2
 #define ACCELZ_PIN 4
-#define PULSE_PIN 0
-#define BUTTON_PIN 6
+
+// Other constants
+#define BAUD_RATE 9600
+#define NUM_LEDS_CH1 120
+#define NUM_LEDS_CH2 29
+#define FRAMES_PER_SECOND 30
 
 // ui
 int mode = 1;
-int modeCount = 6;
+int modeCount = 4;
 Bounce modeButton;
 
 // config
 int staticBpm = 60; // in case no pulse is found
+int pulseBpm = 0; // actually detected value
 int maxBpm = 180; // avoids the system going crazy
 byte beat[]  = {2,2,2,2,3,4,3,2,1,0,10,2,2,3,4,6,8,5,3,3,3,3}; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
 byte beatLength = 22;
@@ -55,19 +52,10 @@ int currentMagnitude;
 int targetMagnitude = maxMagnitude;
 int adjustedMagnitude = maxMagnitude;
 
-// pulse config
-static boolean serialVisual = false;   // Set to 'false' by Default.  Re-set to 'true' to see Arduino Serial Monitor ASCII Visual Pulse 
-
 // pulse state
-volatile int pulseBpm; // int that holds raw Analog in 0. updated every 2mS
-volatile int pulseSignal; // holds the incoming raw data
-volatile int IBI = 600; // int that holds the time interval between beats! Must be seeded! 
 volatile boolean pulseFound = false; // "True" when User's live heartbeat is detected. "False" when not a "live beat". 
 volatile boolean pulseBeatFound = false; // becomes true when Arduoino finds a beat.
 volatile boolean hasPulse = false; // 
-
-#define BRIGHTNESS          96
-#define FRAMES_PER_SECOND  120
 
 CRGB leds[2][NUM_LEDS_CH1];
 
@@ -223,9 +211,7 @@ int getMagnitude() {
 void loopHeartRate() {
   offset = (offset + 1) % beatLength;
 
-//  serialOutput();
   if (pulseFound == true && pulseBpm <= maxBpm) {
-//    serialOutputWhenBeatHappens();
     bpm = pulseBpm;
   } else {
     bpm = staticBpm;
@@ -235,9 +221,6 @@ void loopHeartRate() {
   bpm = staticBpm;
   
   if (pulseBeatFound == true){
-//    offset = 0;
-//    serialOutputWhenBeatHappens();
-//    Serial.println(bpm);
     pulseBeatFound = false;
   }
 
