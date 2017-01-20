@@ -15,14 +15,14 @@
  
 #define BAUD_RATE 9600
 #define NUM_LEDS_CH1 120
-#define LED_PIN_CH1 6
+#define LED_PIN_CH1 4
 #define NUM_LEDS_CH2 29
 #define LED_PIN_CH2 2
-#define ACCELX_PIN 1
+#define ACCELX_PIN 0
 #define ACCELY_PIN 2
-#define ACCELZ_PIN 3
-#define PULSE_PIN 5
-#define BUTTON_PIN 4
+#define ACCELZ_PIN 4
+#define PULSE_PIN 0
+#define BUTTON_PIN 6
 
 // ui
 int mode = 1;
