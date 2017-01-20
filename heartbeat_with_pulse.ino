@@ -24,8 +24,12 @@
 int mode = 1;
 int modeCount = 4;
 Bounce modeButton;
+Bounce brightnessButton;
+Bounce beatButton;
 
 // config
+int currentBrightnessIndex = 1; // start with medium brightness
+byte brightnesses[] = {30,60,90};
 int staticBpm = 60; // in case no pulse is found
 int pulseBpm = 0; // actually detected value
 int maxBpm = 180; // avoids the system going crazy
@@ -62,12 +66,20 @@ CRGB leds[2][NUM_LEDS_CH1];
 void setup() { 
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds[0], NUM_LEDS_CH1);
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds[1], NUM_LEDS_CH2);
-  Serial.begin(BAUD_RATE);
- 
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
   
-  modeButton.attach(BUTTON_PIN);
+  Serial.begin(BAUD_RATE);
+
+  pinMode(MODE_BUTTON_PIN, INPUT_PULLUP);
+  modeButton.attach(MODE_BUTTON_PIN);
   modeButton.interval(50);
+
+  pinMode(BRIGHTNESS_BUTTON_PIN, INPUT_PULLUP);
+  brightnessButton.attach(BRIGHTNESS_BUTTON_PIN);
+  brightnessButton.interval(50);
+
+  pinMode(BEAT_BUTTON_PIN, INPUT_PULLUP);
+  beatButton.attach(BEAT_BUTTON_PIN);
+  beatButton.interval(50);
 
   updateModeFromEEPROM();
 }
@@ -85,6 +97,26 @@ void updateModeFromEEPROM() {
   mode = (mode % modeCount) + 1;
   
   EEPROM.write(0, mode);
+}
+
+void updateModeFromButton() {
+  modeButton.update();
+  int current = modeButton.read();
+  if(modeButton.fell()) {
+    mode = (mode % modeCount) + 1;
+    Serial.print("mode: ");
+    Serial.println(mode);
+  }
+}
+
+void updateBrightnessFromButton() {
+  brightnessButton.update();
+  int current = brightnessButton.read();
+  if(brightnessButton.fell()) {
+    currentBrightnessIndex = ((currentBrightnessIndex + 1) % 3);
+    Serial.print("currentBrightnessIndex: ");
+    Serial.println(currentBrightnessIndex);
+  }
 }
 
 void moveBuffer() {
@@ -271,14 +303,6 @@ void cylon(int ledIndex, int num) {
     delay(5);
   }
 }
-
-void updateModeFromButton() {
-  modeButton.update();
-  if(modeButton.fell()) {
-    mode = (mode % modeCount) + 1;
-  }
-}
-
 void rainbow(int ledIndex, int num) 
 {
   // FastLED's built-in rainbow generator
@@ -327,8 +351,10 @@ void juggle(int ledIndex, int num) {
 
 
 void loop() { 
-  // TODO Fix button noise
-//  updateModeFromButton();
+  updateModeFromButton();
+  updateBrightnessFromButton();
+
+  int brightness = brightnesses[currentBrightnessIndex];
 
   // Activate effect based on mode
   if(mode == 1) {
@@ -342,21 +368,21 @@ void loop() {
     maxBrightnessDivisor = 600;
     loopHeartRate();
   } else if (mode == 3) {
-    FastLED.setBrightness(BRIGHTNESS);
+    FastLED.setBrightness(brightness);
     confetti(0, NUM_LEDS_CH1);
     confetti(1, NUM_LEDS_CH2);
     FastLED.show();  
     FastLED.delay(1000/FRAMES_PER_SECOND); 
     EVERY_N_MILLISECONDS( 20 ) { gHue++; }
-  } else if (mode == 4) {
-    FastLED.setBrightness(BRIGHTNESS);
+  } else if (mode == 3) {
+    FastLED.setBrightness(brightness);
     sinelon(0, NUM_LEDS_CH1);
     sinelon(1, NUM_LEDS_CH2);
     FastLED.show();  
     FastLED.delay(1000/FRAMES_PER_SECOND); 
     EVERY_N_MILLISECONDS( 20 ) { gHue++; }
-  } else if (mode == 5) {
-    FastLED.setBrightness(BRIGHTNESS);
+  } else if (mode == 4) {
+    FastLED.setBrightness(brightness);
     juggle(0, NUM_LEDS_CH1);
     juggle(1, NUM_LEDS_CH2);
     FastLED.show();  
