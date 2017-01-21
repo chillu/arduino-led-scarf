@@ -1,6 +1,6 @@
-#include <Bounce2.h>
+#include "Bounce2.h"
 #include "FastLED.h"
-#include <EEPROM.h>
+#include "EEPROM.h"
 
 // Digital PINs
 #define LED_PIN_CH1 4
