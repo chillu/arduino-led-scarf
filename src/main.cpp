@@ -63,27 +63,6 @@ volatile boolean hasPulse = false; //
 
 CRGB leds[2][NUM_LEDS_CH1];
 
-void setup() {
-  FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds[0], NUM_LEDS_CH1);
-  FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds[1], NUM_LEDS_CH2);
-
-  Serial.begin(BAUD_RATE);
-
-  pinMode(MODE_BUTTON_PIN, INPUT_PULLUP);
-  modeButton.attach(MODE_BUTTON_PIN);
-  modeButton.interval(50);
-
-  pinMode(BRIGHTNESS_BUTTON_PIN, INPUT_PULLUP);
-  brightnessButton.attach(BRIGHTNESS_BUTTON_PIN);
-  brightnessButton.interval(50);
-
-  pinMode(BEAT_BUTTON_PIN, INPUT_PULLUP);
-  beatButton.attach(BEAT_BUTTON_PIN);
-  beatButton.interval(50);
-
-  updateModeFromEEPROM();
-}
-
 // other pattern config
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
@@ -101,7 +80,6 @@ void updateModeFromEEPROM() {
 
 void updateModeFromButton() {
   modeButton.update();
-  int current = modeButton.read();
   if(modeButton.fell()) {
     mode = (mode % modeCount) + 1;
     Serial.print("mode: ");
@@ -111,7 +89,6 @@ void updateModeFromButton() {
 
 void updateBrightnessFromButton() {
   brightnessButton.update();
-  int current = brightnessButton.read();
   if(brightnessButton.fell()) {
     currentBrightnessIndex = ((currentBrightnessIndex + 1) % 3);
     Serial.print("currentBrightnessIndex: ");
@@ -172,7 +149,24 @@ void draw() {
   FastLED.show();
 }
 
-int calcAdjustedMagnitude() {
+// Get a magnitude across all vectors.
+// Smooth out result through a rolling average
+int getMagnitude() {
+  float avgMag = 0;
+  for(int x = 0 ; x < sampleSize ; x++) {
+    float aX = analogRead(ACCELX_PIN);
+    float aY = analogRead(ACCELY_PIN);
+    float aZ = analogRead(ACCELZ_PIN);
+
+    float magnitude = sqrt((aX * aX) + (aY * aY) + (aZ * aZ));
+    avgMag += magnitude;
+  }
+  avgMag /= sampleSize;
+
+  return avgMag;
+}
+
+void calcAdjustedMagnitude() {
   int newMagnitude = getMagnitude();
   int magnitudeDiff = abs(currentMagnitude - newMagnitude);
 
@@ -223,23 +217,6 @@ int calcAdjustedMagnitude() {
   currentMagnitude = newMagnitude;
 }
 
-// Get a magnitude across all vectors.
-// Smooth out result through a rolling average
-int getMagnitude() {
-  float avgMag = 0;
-  for(int x = 0 ; x < sampleSize ; x++) {
-    float aX = analogRead(ACCELX_PIN);
-    float aY = analogRead(ACCELY_PIN);
-    float aZ = analogRead(ACCELZ_PIN);
-
-    float magnitude = sqrt((aX * aX) + (aY * aY) + (aZ * aZ));
-    avgMag += magnitude;
-  }
-  avgMag /= sampleSize;
-
-  return avgMag;
-}
-
 void loopHeartRate() {
   offset = (offset + 1) % beatLength;
 
@@ -276,18 +253,18 @@ void rainbow(int ledIndex, int num)
   fill_rainbow( leds[ledIndex], num, gHue, 7);
 }
 
-void rainbowWithGlitter(int ledIndex, int num)
-{
-  // built-in FastLED rainbow, plus some random sparkly glitter
-  rainbow(ledIndex, num);
-  addGlitter(80, ledIndex, num);
-}
-
 void addGlitter( fract8 chanceOfGlitter, int ledIndex, int num)
 {
   if( random8() < chanceOfGlitter) {
     leds[ledIndex][ random16(num) ] += CRGB::White;
   }
+}
+
+void rainbowWithGlitter(int ledIndex, int num)
+{
+  // built-in FastLED rainbow, plus some random sparkly glitter
+  rainbow(ledIndex, num);
+  addGlitter(80, ledIndex, num);
 }
 
 void confetti(int ledIndex, int num)
@@ -316,6 +293,26 @@ void juggle(int ledIndex, int num) {
   }
 }
 
+void setup() {
+  FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds[0], NUM_LEDS_CH1);
+  FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds[1], NUM_LEDS_CH2);
+
+  Serial.begin(BAUD_RATE);
+
+  pinMode(MODE_BUTTON_PIN, INPUT_PULLUP);
+  modeButton.attach(MODE_BUTTON_PIN);
+  modeButton.interval(50);
+
+  pinMode(BRIGHTNESS_BUTTON_PIN, INPUT_PULLUP);
+  brightnessButton.attach(BRIGHTNESS_BUTTON_PIN);
+  brightnessButton.interval(50);
+
+  pinMode(BEAT_BUTTON_PIN, INPUT_PULLUP);
+  beatButton.attach(BEAT_BUTTON_PIN);
+  beatButton.interval(50);
+
+  updateModeFromEEPROM();
+}
 
 void loop() {
   updateModeFromButton();
