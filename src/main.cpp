@@ -57,16 +57,16 @@ int targetMagnitude = maxMagnitude;
 int adjustedMagnitude = maxMagnitude;
 
 // pulse state
-volatile boolean pulseFound = false; // "True" when User's live heartbeat is detected. "False" when not a "live beat". 
+volatile boolean pulseFound = false; // "True" when User's live heartbeat is detected. "False" when not a "live beat".
 volatile boolean pulseBeatFound = false; // becomes true when Arduoino finds a beat.
-volatile boolean hasPulse = false; // 
+volatile boolean hasPulse = false; //
 
 CRGB leds[2][NUM_LEDS_CH1];
 
-void setup() { 
+void setup() {
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds[0], NUM_LEDS_CH1);
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds[1], NUM_LEDS_CH2);
-  
+
   Serial.begin(BAUD_RATE);
 
   pinMode(MODE_BUTTON_PIN, INPUT_PULLUP);
@@ -95,7 +95,7 @@ void updateModeFromEEPROM() {
     mode = 1;
   }
   mode = (mode % modeCount) + 1;
-  
+
   EEPROM.write(0, mode);
 }
 
@@ -154,10 +154,10 @@ void draw() {
     adjustedMagnitude,
     minMagnitude,
     maxMagnitude,
-    maxBrightnessDivisor, 
+    maxBrightnessDivisor,
     minBrightnessDivisor
   );
-  
+
   // Channel 1
   for (i=0;i<NUM_LEDS_CH1;i++){
       leds[0][i] = CHSV(hue, bufr[i], bufr[i]/(brightnessFactor/100));
@@ -168,39 +168,39 @@ void draw() {
   for (i=0;i<NUM_LEDS_CH2;i++){
       leds[1][i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/(brightnessFactor/100));
   }
-  
+
   FastLED.show();
 }
 
 int calcAdjustedMagnitude() {
   int newMagnitude = getMagnitude();
   int magnitudeDiff = abs(currentMagnitude - newMagnitude);
-  
+
   // Get new target (smoothed out over a couple of readings)
   targetMagnitude = max(
-    constrain(magnitudeDiff, minMagnitude, maxMagnitude), 
+    constrain(magnitudeDiff, minMagnitude, maxMagnitude),
     targetMagnitude
   );
-  
+
   // Slowly work towards new target (either increasing or decreasing)
   if(adjustedMagnitude <= targetMagnitude) {
     adjustedMagnitude = constrain(
       constrain(
-        targetMagnitude + gainRatePerBeat, 
+        targetMagnitude + gainRatePerBeat,
         minMagnitude,
         maxMagnitude
       ),
-      minMagnitude, 
+      minMagnitude,
       maxMagnitude
     );
   } else {
     adjustedMagnitude = constrain(
       constrain(
-        targetMagnitude - gainRatePerBeat, 
+        targetMagnitude - gainRatePerBeat,
         minMagnitude,
         maxMagnitude
       ),
-      minMagnitude, 
+      minMagnitude,
       maxMagnitude
     );
   }
@@ -209,7 +209,7 @@ int calcAdjustedMagnitude() {
   targetMagnitude = targetMagnitude - decayRatePerBeat;
   targetMagnitude = constrain(
     targetMagnitude,
-    minMagnitude, 
+    minMagnitude,
     maxMagnitude
   );
 
@@ -219,7 +219,7 @@ int calcAdjustedMagnitude() {
 //  Serial.print("\t");
 //  Serial.print(adjustedMagnitude);
 //  Serial.println();
-  
+
   currentMagnitude = newMagnitude;
 }
 
@@ -236,7 +236,7 @@ int getMagnitude() {
     avgMag += magnitude;
   }
   avgMag /= sampleSize;
-  
+
   return avgMag;
 }
 
@@ -251,7 +251,7 @@ void loopHeartRate() {
 
   // TODO Fix BPM noise
   bpm = staticBpm;
-  
+
   if (pulseBeatFound == true){
     pulseBeatFound = false;
   }
@@ -266,31 +266,31 @@ void loopHeartRate() {
 
   // Measure only a few times per beat to avoid slowdowns
   if(offset % round(beatLength/samplePerBeat) == 0) {
-    calcAdjustedMagnitude(); 
+    calcAdjustedMagnitude();
   }
 }
 
-void rainbow(int ledIndex, int num) 
+void rainbow(int ledIndex, int num)
 {
   // FastLED's built-in rainbow generator
   fill_rainbow( leds[ledIndex], num, gHue, 7);
 }
 
-void rainbowWithGlitter(int ledIndex, int num) 
+void rainbowWithGlitter(int ledIndex, int num)
 {
   // built-in FastLED rainbow, plus some random sparkly glitter
   rainbow(ledIndex, num);
   addGlitter(80, ledIndex, num);
 }
 
-void addGlitter( fract8 chanceOfGlitter, int ledIndex, int num) 
+void addGlitter( fract8 chanceOfGlitter, int ledIndex, int num)
 {
   if( random8() < chanceOfGlitter) {
     leds[ledIndex][ random16(num) ] += CRGB::White;
   }
 }
 
-void confetti(int ledIndex, int num) 
+void confetti(int ledIndex, int num)
 {
   // random colored speckles that blink in and fade smoothly
   fadeToBlackBy( leds[ledIndex], num, 10);
@@ -317,7 +317,7 @@ void juggle(int ledIndex, int num) {
 }
 
 
-void loop() { 
+void loop() {
   updateModeFromButton();
   updateBrightnessFromButton();
 
@@ -333,22 +333,22 @@ void loop() {
     FastLED.setBrightness(brightness);
     confetti(0, NUM_LEDS_CH1);
     confetti(1, NUM_LEDS_CH2);
-    FastLED.show();  
-    FastLED.delay(1000/FRAMES_PER_SECOND); 
+    FastLED.show();
+    FastLED.delay(1000/FRAMES_PER_SECOND);
     EVERY_N_MILLISECONDS( 20 ) { gHue++; }
   } else if (mode == 3) {
     FastLED.setBrightness(brightness);
     sinelon(0, NUM_LEDS_CH1);
     sinelon(1, NUM_LEDS_CH2);
-    FastLED.show();  
-    FastLED.delay(1000/FRAMES_PER_SECOND); 
+    FastLED.show();
+    FastLED.delay(1000/FRAMES_PER_SECOND);
     EVERY_N_MILLISECONDS( 20 ) { gHue++; }
   } else if (mode == 4) {
     FastLED.setBrightness(brightness);
     juggle(0, NUM_LEDS_CH1);
     juggle(1, NUM_LEDS_CH2);
-    FastLED.show();  
-    FastLED.delay(1000/FRAMES_PER_SECOND); 
+    FastLED.show();
+    FastLED.delay(1000/FRAMES_PER_SECOND);
     EVERY_N_MILLISECONDS( 20 ) { gHue++; }
   }
 
