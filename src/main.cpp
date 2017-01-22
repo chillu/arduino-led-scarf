@@ -32,8 +32,8 @@
 
 #include <BrightnessControl.h>
 #include <ModeControl.h>
+#include <BeatControl.h>
 
-Bounce beatButton;
 
 CRGB ledsCh0[NUM_LEDS_CH0];
 PatternState stateCh0(NUM_LEDS_CH0, ledsCh0);
@@ -244,6 +244,7 @@ void loopHeartRate() {
     calcAdjustedMagnitude();
   }
 }
+BeatControl beatControl(BEAT_BUTTON_PIN);
 
 // // Cycle mode in persistent memory on every on switch.
 // // More resilient against hardware failures than a button.
@@ -268,9 +269,7 @@ void setup() {
 
   modeControl.setup();
 
-  pinMode(BEAT_BUTTON_PIN, INPUT_PULLUP);
-  beatButton.attach(BEAT_BUTTON_PIN);
-  beatButton.interval(50);
+  beatControl.setup();
 
   stateCh0.setPalette(&palette);
   patternList.setState(0, &stateCh0);
@@ -291,6 +290,10 @@ void loop() {
   if(modeControl.fell()) {
     patternList.next();
   }
+
+  // Beat
+  beatControl.update();
+  // TODO Beat detection
 
   // Patterns
   byte fade = 0;
