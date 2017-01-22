@@ -60,6 +60,9 @@ ModeControl modeControl(MODE_BUTTON_PIN);
 BeatControl beatControl(BEAT_BUTTON_PIN);
 AccellerationControl accellerationControl(ACCELX_PIN, ACCELY_PIN, ACCELZ_PIN);
 
+// See https://learn.adafruit.com/multi-tasking-the-arduino-part-1/using-millis-for-timing
+long previousMillis = 0;
+
 // // Cycle mode in persistent memory on every on switch.
 // // More resilient against hardware failures than a button.
 // void updateModeFromEEPROM() {
@@ -95,6 +98,9 @@ void setup() {
 }
 
 void loop() {
+  // Timing
+  unsigned long currentMillis = millis();
+
   // Brightness
   brightnessControl.update();
   FastLED.setBrightness(brightnessControl.getBrightness());
@@ -106,11 +112,12 @@ void loop() {
   }
 
   // Beat
+  int bpm;
   beatControl.update();
-  // TODO Beat detection
-
-  Pattern *currPattern = patternList.curr();
-  int frameLength = currPattern->getFrameLength();
+  bpm = beatControl.getBpm();
+  EVERY_N_MILLISECONDS(100) {
+    heartbeat->setBpm(bpm);
+  }
 
   // Accelleration
   int magnitude;
@@ -122,7 +129,12 @@ void loop() {
   }
 
   // Patterns
-  EVERY_N_MILLISECONDS(frameLength) {
+  Pattern *currPattern = patternList.curr();
+  int frameLength = currPattern->getFrameLength();
+  // Should use EVERY_N_MILLISECONDS, but the C++ macro
+  // can't seem to change values dynamically
+  if(currentMillis - previousMillis > frameLength) {
+    previousMillis = currentMillis;
     patternList.loop(0);
     FastLED.show();
   }

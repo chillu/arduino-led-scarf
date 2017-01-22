@@ -1,8 +1,8 @@
-#include <Bounce2.h>
+#include <ArduinoTapTempo.h>
 
 class BeatControl {
-  Bounce button;
   int pin;
+  ArduinoTapTempo tapTempo;
 
 public:
   BeatControl(int _pin): pin(_pin)
@@ -13,17 +13,16 @@ public:
   void setup()
   {
     pinMode(pin, INPUT_PULLUP);
-    button.attach(pin);
-    button.interval(50);
   }
 
   void update()
   {
-    button.update();
+    boolean buttonDown = digitalRead(pin) == LOW;
+    tapTempo.update(buttonDown);
   }
 
-  bool fell()
+  float getBpm()
   {
-    return button.fell();
+    return tapTempo.getBPM();
   }
 };
