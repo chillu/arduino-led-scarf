@@ -11,7 +11,7 @@
 class Pattern {
 
   protected:
-    PatternState *_state;
+    PatternState *_states[NUM_STATES];
 
   public:
     /**
@@ -28,22 +28,30 @@ class Pattern {
      * @param _state->leds The LED strip to draw to
      * @param fade The activation level of this pattern. Use this to fade patterns in and out
      */
-    virtual void loop(byte fade) = 0;
+    virtual void loopForState(PatternState *state, byte fade) = 0;
 
     /**
      * Link a PatternState to this pattern.
      */
-    virtual void setState(PatternState *state)
+    virtual void setState(int index, PatternState *state)
     {
-      _state = state;
+      // TODO Out of bounds check
+      _states[index] = state;
     };
+
+    void loop(byte fade)
+    {
+      for(int i = 0 ; i < NUM_STATES ; i++) {
+        loopForState(i, _states[i]);
+      }
+    }
 
     /**
      * Get the LEDs array that this pattern outputs to;
      */
-    CRGB *getLEDs()
+    CRGB *getLeds(int index)
     {
-      return _state->leds;
+      return _states[index]->getLeds();
     };
 };
 

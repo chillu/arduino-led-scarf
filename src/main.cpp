@@ -1,6 +1,6 @@
-#include "Bounce2.h"
-#include "FastLED.h"
-#include "EEPROM.h"
+#include <Bounce2.h>
+#include <FastLED.h>
+#include <EEPROM.h>
 
 // Digital PINs
 #define LED_PIN_CH1 4
@@ -10,22 +10,42 @@
 #define BEAT_BUTTON_PIN 10
 
 // Analog PINs
-#define ACCELX_PIN 0
-#define ACCELY_PIN 2
-#define ACCELZ_PIN 4
+#define ACCELX_PIN A0
+#define ACCELY_PIN A2
+#define ACCELZ_PIN A4
 
 // Other constants
 #define BAUD_RATE 9600
-#define NUM_LEDS_CH1 120
-#define NUM_LEDS_CH2 29
+#define NUM_LEDS_CH0 120
+#define NUM_LEDS_CH1 29
 #define FRAMES_PER_SECOND 30
+#define NUM_STATES 2
+
+#include <Pattern.h>
+#include <PatternList.h>
+#include <PatternState.h>
+
+#include <Plasma.h>
+#include <Juggle.h>
+#include <Sinelon.h>
+#include <Confetti.h>
 
 // ui
 int mode = 1;
-int modeCount = 4;
+int modeCount = 2;
 Bounce modeButton;
 Bounce brightnessButton;
 Bounce beatButton;
+
+CRGB ledsCh0[NUM_LEDS_CH0];
+PatternState stateCh0(NUM_LEDS_CH0, ledsCh0);
+
+CRGB ledsCh1[NUM_LEDS_CH1];
+PatternState stateCh1(NUM_LEDS_CH1, ledsCh1);
+
+CRGBPalette16 palette(CRGB::Black, CRGB::Red, CRGB::Yellow, CRGB::White);
+Pattern *patternItems[] = { new Plasma(), new Juggle(), new Sinelon(), new Confetti() };
+PatternList patternList(4, patternItems);
 
 // config
 int currentBrightnessIndex = 1; // start with medium brightness
@@ -50,7 +70,7 @@ int samplePerBeat = 1;
 
 // state
 int bpm = staticBpm;
-byte bufr[NUM_LEDS_CH1];
+byte bufr[NUM_LEDS_CH0];
 byte offset = 0;
 int currentMagnitude;
 int targetMagnitude = maxMagnitude;
@@ -61,10 +81,7 @@ volatile boolean pulseFound = false; // "True" when User's live heartbeat is det
 volatile boolean pulseBeatFound = false; // becomes true when Arduoino finds a beat.
 volatile boolean hasPulse = false; //
 
-CRGB leds[2][NUM_LEDS_CH1];
-
-// other pattern config
-uint8_t gHue = 0; // rotating "base color" used by many of the patterns
+CRGB leds[2][NUM_LEDS_CH0];
 
 // Cycle mode in persistent memory on every on switch.
 // More resilient against hardware failures than a button.
@@ -81,9 +98,7 @@ void updateModeFromEEPROM() {
 void updateModeFromButton() {
   modeButton.update();
   if(modeButton.fell()) {
-    mode = (mode % modeCount) + 1;
-    Serial.print("mode: ");
-    Serial.println(mode);
+    patternList.next();
   }
 }
 
@@ -99,7 +114,7 @@ void updateBrightnessFromButton() {
 void moveBuffer() {
   int i;
   byte c = (int) beat[offset] * 255 / beatMaxIntensity;
-  int midPoint = NUM_LEDS_CH1/2;
+  int midPoint = NUM_LEDS_CH0/2;
 
   // Move current beat intensity from middle to beginning of strip (backward in buffer)
   bufr[midPoint - 1] = c;
@@ -109,7 +124,7 @@ void moveBuffer() {
 
   // Move current beat intensity from middle to end of strip (forward in buffer)
   bufr[midPoint] = c;
-  for (i=NUM_LEDS_CH1 - 1;i>midPoint;i--){
+  for (i=NUM_LEDS_CH0 - 1;i>midPoint;i--){
     bufr[i] = bufr[i-1];
   }
 }
@@ -136,13 +151,13 @@ void draw() {
   );
 
   // Channel 1
-  for (i=0;i<NUM_LEDS_CH1;i++){
+  for (i=0;i<NUM_LEDS_CH0;i++){
       leds[0][i] = CHSV(hue, bufr[i], bufr[i]/(brightnessFactor/100));
   }
 
   // Channel 2
   int halfPoint = (int)sizeof(bufr)/2;
-  for (i=0;i<NUM_LEDS_CH2;i++){
+  for (i=0;i<NUM_LEDS_CH1;i++){
       leds[1][i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/(brightnessFactor/100));
   }
 
@@ -247,55 +262,10 @@ void loopHeartRate() {
   }
 }
 
-void rainbow(int ledIndex, int num)
-{
-  // FastLED's built-in rainbow generator
-  fill_rainbow( leds[ledIndex], num, gHue, 7);
-}
-
-void addGlitter( fract8 chanceOfGlitter, int ledIndex, int num)
-{
-  if( random8() < chanceOfGlitter) {
-    leds[ledIndex][ random16(num) ] += CRGB::White;
-  }
-}
-
-void rainbowWithGlitter(int ledIndex, int num)
-{
-  // built-in FastLED rainbow, plus some random sparkly glitter
-  rainbow(ledIndex, num);
-  addGlitter(80, ledIndex, num);
-}
-
-void confetti(int ledIndex, int num)
-{
-  // random colored speckles that blink in and fade smoothly
-  fadeToBlackBy( leds[ledIndex], num, 10);
-  int pos = random16(num);
-  leds[ledIndex][pos] += CHSV( gHue + random8(64), 200, 255);
-}
-
-void sinelon(int ledIndex, int num)
-{
-  // a colored dot sweeping back and forth, with fading trails
-  fadeToBlackBy( leds[ledIndex], num, 20);
-  int pos = beatsin16(13,0,num);
-  leds[ledIndex][pos] += CHSV( gHue, 255, 192);
-}
-
-void juggle(int ledIndex, int num) {
-  // eight colored dots, weaving in and out of sync with each other
-  fadeToBlackBy( leds[ledIndex], num, 20);
-  byte dothue = 0;
-  for( int i = 0; i < 8; i++) {
-    leds[ledIndex][beatsin16(i+7,0,num)] |= CHSV(dothue, 200, 255);
-    dothue += 32;
-  }
-}
 
 void setup() {
-  FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(leds[0], NUM_LEDS_CH1);
-  FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(leds[1], NUM_LEDS_CH2);
+  FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(ledsCh0, NUM_LEDS_CH0);
+  FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(ledsCh1, NUM_LEDS_CH1);
 
   Serial.begin(BAUD_RATE);
 
@@ -311,6 +281,12 @@ void setup() {
   beatButton.attach(BEAT_BUTTON_PIN);
   beatButton.interval(50);
 
+  stateCh0.setPalette(&palette);
+  patternList.setState(0, &stateCh0);
+
+  stateCh1.setPalette(&palette);
+  patternList.setState(1, &stateCh1);
+
   updateModeFromEEPROM();
 }
 
@@ -318,35 +294,13 @@ void loop() {
   updateModeFromButton();
   updateBrightnessFromButton();
 
-  int brightness = brightnesses[currentBrightnessIndex];
+  // int brightness = brightnesses[currentBrightnessIndex];
 
-  // Activate effect based on mode
-  if(mode == 1) {
-    // Bright pulse meter
-    minBrightnessDivisor = 200;
-    maxBrightnessDivisor = 400;
-    loopHeartRate();
-  } else if (mode == 2) {
-    FastLED.setBrightness(brightness);
-    confetti(0, NUM_LEDS_CH1);
-    confetti(1, NUM_LEDS_CH2);
-    FastLED.show();
-    FastLED.delay(1000/FRAMES_PER_SECOND);
-    EVERY_N_MILLISECONDS( 20 ) { gHue++; }
-  } else if (mode == 3) {
-    FastLED.setBrightness(brightness);
-    sinelon(0, NUM_LEDS_CH1);
-    sinelon(1, NUM_LEDS_CH2);
-    FastLED.show();
-    FastLED.delay(1000/FRAMES_PER_SECOND);
-    EVERY_N_MILLISECONDS( 20 ) { gHue++; }
-  } else if (mode == 4) {
-    FastLED.setBrightness(brightness);
-    juggle(0, NUM_LEDS_CH1);
-    juggle(1, NUM_LEDS_CH2);
-    FastLED.show();
-    FastLED.delay(1000/FRAMES_PER_SECOND);
-    EVERY_N_MILLISECONDS( 20 ) { gHue++; }
-  }
+  byte fade = 0;
+  patternList.loop(fade);
 
+  FastLED.show();
+
+  // Run loop() once per frame
+  FastLED.delay(1000 / FRAMES_PER_SECOND);
 }

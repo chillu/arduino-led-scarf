@@ -6,7 +6,7 @@
  *
  * @author Sam Minnee
  */
-class PatternList: public Pattern {
+class PatternList {
   private:
     byte _curPattern;
     byte _numPatterns;
@@ -24,11 +24,10 @@ class PatternList: public Pattern {
       _patterns[_curPattern]->loop(fade);
     }
 
-    void setState(PatternState *state)
+    void setState(int index, PatternState *state)
     {
-      _state = state;
       for(byte i = 0; i < _numPatterns; i++) {
-        _patterns[i]->setState(state);
+        _patterns[i]->setState(index, state);
       }
     }
 

@@ -23,16 +23,21 @@ class PatternState {
      */
     CRGBPalette16 *_palette;
 
-  public:
     /**
      * The LEDs to write to
      */
-    CRGB leds[NUM_LEDS];
+    CRGB *_leds;
 
-    PatternState(): activation(0)
+    byte _ledsSize;
+
+  public:
+    PatternState(byte ledsSize, CRGB *leds): activation(0)
     {
-      for(byte i = 0; i < NUM_LEDS; i++) {
-        leds[i] = CRGB::Black;
+      _ledsSize = ledsSize;
+      
+      _leds = leds;
+      for(byte i = 0; i < _ledsSize; i++) {
+        _leds[i] = CRGB::Black;
       }
     };
 
@@ -41,8 +46,8 @@ class PatternState {
       // Allocate the byte array if it hasn't realy been allocated
       if ((unsigned int)activation == 0) {
         Serial.println("Allocating activation");
-        activation = new byte[NUM_LEDS];
-        for(byte i = 0; i < NUM_LEDS; i++) {
+        activation = new byte[_ledsSize];
+        for(byte i = 0; i < _ledsSize; i++) {
           activation[i] = 0;
         }
       }
@@ -59,6 +64,16 @@ class PatternState {
     {
       return _palette;
     };
+
+    CRGB *getLeds()
+    {
+      return _leds;
+    }
+
+    int getLedsSize()
+    {
+      return _ledsSize;
+    }
 
 };
 
