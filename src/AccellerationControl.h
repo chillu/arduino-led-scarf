@@ -1,17 +1,21 @@
 /**
  * Calculates a magnitude based on accellerometer reads.
  * Smooths out gains and losses to transition between different readings over time.
+ *
+ * The maxMagnitude value depends on the sensor and setup,
+ * some sensors will send down more current based on the same amount of motion.
+ * Adjust accordingly.
  */
 class AccellerationControl {
 
   int xPin;
   int yPin;
   int zPin;
-  int magnitude;
+  int currentMagnitude;
   int minMagnitude = 0;
-  int maxMagnitude = 50; // max difference between two magnitude measurements
-  int gainRatePerBeat = 6; // change towards new target magnitude
-  int decayRatePerBeat = 2; // move back towards minMagnitude
+  int maxMagnitude = 40; // max difference between two magnitude measurements
+  int gainRatePerBeat = 10; // change towards new target magnitude
+  int decayRatePerBeat = 1; // move back towards minMagnitude
   int sampleSize = 8; // smooth out accelerometer readings
   int targetMagnitude = maxMagnitude;
   int adjustedMagnitude = maxMagnitude;
@@ -29,15 +33,36 @@ class AccellerationControl {
 
       float magnitude = sqrt((aX * aX) + (aY * aY) + (aZ * aZ));
       avgMag += magnitude;
+
+      // Serial.print(aX);
+      // Serial.print(",");
+      // Serial.print(aY);
+      // Serial.print(",");
+      // Serial.print(aZ);
+      // Serial.println();
     }
     avgMag /= sampleSize;
+
+    // Serial.println(avgMag);
 
     return avgMag;
   }
 
-  int calcMagnitude() {
+public:
+  AccellerationControl(int _xPin, int _yPin, int _zPin):
+    xPin(_xPin), yPin(_yPin), zPin(_zPin)
+  {
+    // no-op
+  }
+
+  void setup()
+  {
+  }
+
+  void update()
+  {
     int newMagnitude = getRawMagnitude();
-    int magnitudeDiff = abs(magnitude - newMagnitude);
+    int magnitudeDiff = abs(currentMagnitude - newMagnitude);
 
     // Get new target (smoothed out over a couple of readings)
     targetMagnitude = max(
@@ -83,28 +108,12 @@ class AccellerationControl {
   //  Serial.print(adjustedMagnitude);
   //  Serial.println();
 
-    return newMagnitude;
+   currentMagnitude = newMagnitude;
   }
 
-public:
-  AccellerationControl(int _xPin, int _yPin, int _zPin):
-    xPin(_xPin), yPin(_yPin), zPin(_zPin)
+  int getAdjustedMagnitude()
   {
-    // no-op
-  }
-
-  void setup()
-  {
-  }
-
-  void update()
-  {
-    magnitude = calcMagnitude();
-  }
-
-  int getMagnitude()
-  {
-    return magnitude;
+    return adjustedMagnitude;
   }
 
 };

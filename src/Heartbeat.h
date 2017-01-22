@@ -4,7 +4,9 @@
 #define HEARTBEAT_MODE_FULL 1
 
 /**
- * random colored speckles that blink in and fade smoothly
+ * Runs a heartbeat pattern along the strip, with brightness and hue
+ * values based on a "magnitude". A lower magnitue is cooler and darker.
+ * This allows hooking up the pattern to sensors, like an accellerometer.
  */
 class Heartbeat: public Pattern {
 
@@ -18,7 +20,7 @@ class Heartbeat: public Pattern {
   int minHue = 160; // hue value under low motion, as defined through minMagnitude (from 0-255)
   int maxHue = 255; // hue value under high motion, as defined through maxMagnitude (from 0-255)
   int minMagnitude = 0;
-  int maxMagnitude = 600; // max difference between two magnitude measurements
+  int maxMagnitude = 40; // max difference between two magnitude measurements
 
   // state
   int bpm = 60;

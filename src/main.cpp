@@ -117,7 +117,7 @@ void loop() {
   EVERY_N_MILLISECONDS(100) {
     // Expensive calc, perform sparingly
     accellerationControl.update();
-    magnitude = accellerationControl.getMagnitude();
+    magnitude = accellerationControl.getAdjustedMagnitude();
     heartbeat->setMagnitude(magnitude);
   }
 
