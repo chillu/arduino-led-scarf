@@ -49,13 +49,6 @@ class Pattern {
       FastLED.delay(1000 / FRAMES_PER_SECOND);
     }
 
-    /**
-     * Get the LEDs array that this pattern outputs to;
-     */
-    CRGB *getLeds(int index)
-    {
-      return _states[index]->getLeds();
-    };
 };
 
 #endif

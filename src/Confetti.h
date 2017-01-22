@@ -13,11 +13,9 @@ class Confetti: public Pattern {
   public:
     void loopForState(PatternState *state, byte fade)
     {
-      CRGB *leds = state->getLeds();
-      int ledsSize = state->getLedsSize();
-      fadeToBlackBy( leds, ledsSize, 10);
-      int pos = random16(ledsSize);
-      leds[pos] += CHSV( gHue + random8(64), 200, 255);
+      fadeToBlackBy( state->leds, state->ledsSize, 10);
+      int pos = random16(state->ledsSize);
+      state->leds[pos] += CHSV( gHue + random8(64), 200, 255);
 
       EVERY_N_MILLISECONDS( 20 ) { gHue++; }
     }

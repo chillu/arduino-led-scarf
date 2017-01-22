@@ -13,11 +13,9 @@ class Sinelon: public Pattern {
   public:
     void loopForState(PatternState *state, byte fade)
     {
-      CRGB *leds = state->getLeds();
-      int ledsSize = state->getLedsSize();
-      fadeToBlackBy( leds, ledsSize, 20);
-      int pos = beatsin16(13,0,ledsSize);
-      leds[pos] += CHSV( gHue, 255, 192);
+      fadeToBlackBy( state->leds, state->ledsSize, 20);
+      int pos = beatsin16(13, 0, state->ledsSize);
+      state->leds[pos] += CHSV( gHue, 255, 192);
 
       EVERY_N_MILLISECONDS( 20 ) { gHue++; }
     }

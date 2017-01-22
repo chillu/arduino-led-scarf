@@ -7,12 +7,10 @@ class Juggle: public Pattern {
   public:
     void loopForState(PatternState *state, byte fade)
     {
-      CRGB *leds = state->getLeds();
-      int ledsSize = state->getLedsSize();
-      fadeToBlackBy( leds, ledsSize, 20);
+      fadeToBlackBy( state->leds, state->ledsSize, 20);
       byte dothue = 0;
       for( int i = 0; i < 8; i++) {
-        leds[beatsin16(i+7,0,ledsSize)] |= CHSV(dothue, 200, 255);
+        state->leds[beatsin16(i+7,0,state->ledsSize)] |= CHSV(dothue, 200, 255);
         dothue += 32;
       }
     }
