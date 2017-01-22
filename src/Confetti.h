@@ -18,5 +18,7 @@ class Confetti: public Pattern {
       fadeToBlackBy( leds, ledsSize, 10);
       int pos = random16(ledsSize);
       leds[pos] += CHSV( gHue + random8(64), 200, 255);
+
+      EVERY_N_MILLISECONDS( 20 ) { gHue++; }
     }
 };

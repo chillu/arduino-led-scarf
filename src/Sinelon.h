@@ -19,5 +19,6 @@ class Sinelon: public Pattern {
       int pos = beatsin16(13,0,ledsSize);
       leds[pos] += CHSV( gHue, 255, 192);
 
+      EVERY_N_MILLISECONDS( 20 ) { gHue++; }
     }
 };
