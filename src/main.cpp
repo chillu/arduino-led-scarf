@@ -31,11 +31,8 @@
 #include <Confetti.h>
 
 #include <BrightnessControl.h>
+#include <ModeControl.h>
 
-// ui
-int mode = 1;
-int modeCount = 2;
-Bounce modeButton;
 Bounce beatButton;
 
 CRGB ledsCh0[NUM_LEDS_CH0];
@@ -49,6 +46,7 @@ Pattern *patternItems[] = { new Plasma(), new Juggle(), new Sinelon(), new Confe
 PatternList patternList(4, patternItems);
 
 BrightnessControl brightnessControl(BRIGHTNESS_BUTTON_PIN);
+ModeControl modeControl(MODE_BUTTON_PIN);
 
 // config
 int staticBpm = 60; // in case no pulse is found
@@ -94,13 +92,6 @@ void updateModeFromEEPROM() {
   mode = (mode % modeCount) + 1;
 
   EEPROM.write(0, mode);
-}
-
-void updateModeFromButton() {
-  modeButton.update();
-  if(modeButton.fell()) {
-    patternList.next();
-  }
 }
 
 void moveBuffer() {
@@ -254,6 +245,17 @@ void loopHeartRate() {
   }
 }
 
+// // Cycle mode in persistent memory on every on switch.
+// // More resilient against hardware failures than a button.
+// void updateModeFromEEPROM() {
+//   mode = EEPROM.read(0);
+//   if(!mode) {
+//     mode = 1;
+//   }
+//   mode = (mode % modeCount) + 1;
+//
+//   EEPROM.write(0, mode);
+// }
 
 void setup() {
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(ledsCh0, NUM_LEDS_CH0);
@@ -262,10 +264,9 @@ void setup() {
   Serial.begin(BAUD_RATE);
 
   brightnessControl.setup();
+  FastLED.setBrightness(brightnessControl.getBrightness());
 
-  pinMode(MODE_BUTTON_PIN, INPUT_PULLUP);
-  modeButton.attach(MODE_BUTTON_PIN);
-  modeButton.interval(50);
+  modeControl.setup();
 
   pinMode(BEAT_BUTTON_PIN, INPUT_PULLUP);
   beatButton.attach(BEAT_BUTTON_PIN);
@@ -277,20 +278,23 @@ void setup() {
   stateCh1.setPalette(&palette);
   patternList.setState(1, &stateCh1);
 
-  updateModeFromEEPROM();
+  // updateModeFromEEPROM();
 }
 
 void loop() {
-  updateModeFromButton();
-
+  // Brightness
   brightnessControl.update();
   FastLED.setBrightness(brightnessControl.getBrightness());
 
+  // Mode
+  modeControl.update();
+  if(modeControl.fell()) {
+    patternList.next();
+  }
+
+  // Patterns
   byte fade = 0;
   patternList.loop(fade);
-
   FastLED.show();
-
-  // Run loop() once per frame
   FastLED.delay(1000 / FRAMES_PER_SECOND);
 }
