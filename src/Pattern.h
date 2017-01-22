@@ -39,11 +39,14 @@ class Pattern {
       _states[index] = state;
     };
 
-    void loop(byte fade)
+    virtual void loop(byte fade)
     {
       for(int i = 0 ; i < NUM_STATES ; i++) {
         loopForState(_states[i], fade);
       }
+
+      FastLED.show();
+      FastLED.delay(1000 / FRAMES_PER_SECOND);
     }
 
     /**
