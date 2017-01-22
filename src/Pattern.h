@@ -44,9 +44,11 @@ class Pattern {
       for(int i = 0 ; i < NUM_STATES ; i++) {
         loopForState(_states[i], fade);
       }
+    }
 
-      FastLED.show();
-      FastLED.delay(1000 / FRAMES_PER_SECOND);
+    virtual int getFrameLength()
+    {
+      return FRAME_LENGTH;
     }
 
 };

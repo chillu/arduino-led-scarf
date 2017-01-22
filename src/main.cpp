@@ -1,6 +1,14 @@
 #include <Bounce2.h>
 #include <FastLED.h>
-#include <EEPROM.h>
+// #include <EEPROM.h>
+
+#define DEBUG
+
+#ifdef DEBUG
+  #define DEBUG_PRINT(msg) (Serial.println(msg))
+#else
+  #define DEBUG_PRINT(msg) ()
+#endif
 
 // Digital PINs
 #define LED_PIN_CH1 4
@@ -18,7 +26,7 @@
 #define BAUD_RATE 9600
 #define NUM_LEDS_CH0 120
 #define NUM_LEDS_CH1 29
-#define FRAMES_PER_SECOND 30
+#define FRAME_LENGTH 33 // 30 fps
 #define NUM_STATES 2
 
 #include <Pattern.h>
@@ -101,15 +109,22 @@ void loop() {
   beatControl.update();
   // TODO Beat detection
 
+  Pattern *currPattern = patternList.curr();
+  int frameLength = currPattern->getFrameLength();
+
   // Accelleration
-  EVERY_N_MILLISECONDS(50) {
+  int magnitude;
+  EVERY_N_MILLISECONDS(100) {
     // Expensive calc, perform sparingly
     accellerationControl.update();
+    magnitude = accellerationControl.getMagnitude();
+    heartbeat->setMagnitude(magnitude);
   }
-  Serial.println(accellerationControl.getMagnitude());
-  // heartbeat->setMagnitude(accellerationControl.getMagnitude());
 
   // Patterns
-  byte fade = 0;
-  patternList.loop(fade);
+  EVERY_N_MILLISECONDS(frameLength) {
+    patternList.loop(0);
+    FastLED.show();
+  }
+
 }

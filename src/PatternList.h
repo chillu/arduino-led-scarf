@@ -39,6 +39,11 @@ class PatternList {
       setup();
     }
 
+    Pattern* curr()
+    {
+      return _patterns[_curPattern];
+    }
+
     /**
      * Switch to a random pattern
      */

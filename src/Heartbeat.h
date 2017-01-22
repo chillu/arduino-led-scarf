@@ -10,24 +10,24 @@ class Heartbeat: public Pattern {
 
   // config
   byte beat[22]  = {2,2,2,2,3,4,3,2,1,0,10,2,2,3,4,6,8,5,3,3,3,3}; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
-  byte beatLength = 22;
+  int beatLength = 22;
   int beatMaxIntensity = 10; // max value in beat array
-  int movesPerBeat = 4;
+  int movesPerBeat = 2; // determines the speed, not the tempo
   int minBrightnessDivisor= 150; // lower = brighter
   int maxBrightnessDivisor = 300; // higher = dimmer
   int minHue = 160; // hue value under low motion, as defined through minMagnitude (from 0-255)
   int maxHue = 255; // hue value under high motion, as defined through maxMagnitude (from 0-255)
   int minMagnitude = 0;
-  int maxMagnitude = 50; // max difference between two magnitude measurements
+  int maxMagnitude = 600; // max difference between two magnitude measurements
 
   // state
   int bpm = 60;
   byte bufr[NUM_LEDS_CH0]; // TODO Remove hardcoding, relies on first channel being "split" mode
   byte offset = 0;
-  int magnitude = 25;
+  int magnitude = 10;
   int mode = HEARTBEAT_MODE_FULL;
   int hue = 0;
-  int brightnessFactor = 0;
+  int brightnessFactor = 220;
 
   void moveBuffer(int ledsSize) {
     int i;
@@ -71,37 +71,31 @@ class Heartbeat: public Pattern {
     void loop(byte fade)
     {
       offset = (offset + 1) % beatLength;
-      int i;
-      for (i=0;i<movesPerBeat;i++){
-        // Delay in milliseconds. BPM are measured by minute, so divide accordingly.
-        delay((float) 1 / (bpm * 60 * 1000) / beatLength / movesPerBeat);
-        updateParameters();
+      updateParameters();
 
-        for(int i = 0 ; i < NUM_STATES ; i++) {
-          loopForState(_states[i], fade);
+      for (int i=0;i<movesPerBeat;i++){
+        // Only move *one* buffer for all states, for performance reasons
+        // TODO Remove assumption that first state has more LEDs
+        moveBuffer(_states[0]->ledsSize);
+
+        // TODO Switch to NUM_STATES
+        for(int j=0; j<NUM_STATES; j++) {
+          loopForState(_states[j], fade);
         }
-
-        FastLED.show();
-        // Don't use FastLED.delay() here, we've got custom timings
       }
     }
 
     void loopForState(PatternState *state, byte fade)
     {
-      CRGB *leds = state->getLeds();
-      int ledsSize = state->getLedsSize();
-
       int i;
       if (mode == HEARTBEAT_MODE_SPLIT) {
-        // TODO Should have separate buffer
         int halfPoint = (int)sizeof(bufr)/2;
-        for (i=0;i<ledsSize;i++){
-            leds[i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/(brightnessFactor/100));
+        for (i=0;i<state->ledsSize;i++){
+            state->leds[i] = CHSV(hue, bufr[halfPoint], bufr[halfPoint]/(brightnessFactor/100));
         }
       } else if(mode == HEARTBEAT_MODE_FULL) {
-        moveBuffer(ledsSize);
-        for (i=0;i<ledsSize;i++){
-            leds[i] = CHSV(hue, bufr[i], bufr[i]/(brightnessFactor/100));
+        for (i=0;i<state->ledsSize;i++){
+            state->leds[i] = CHSV(hue, bufr[i], bufr[i]/(brightnessFactor/100));
         }
       } else {
         // TODO Exception
@@ -111,5 +105,12 @@ class Heartbeat: public Pattern {
     void setMagnitude(int _magnitude)
     {
       magnitude = _magnitude;
+    }
+
+    int getFrameLength()
+    {
+      // Delay in milliseconds. BPM are measured by minute, so divide accordingly.
+      long msPerBeat = (unsigned int)((60*1000) / (unsigned int)bpm);
+      return (int)((unsigned int)msPerBeat / (int)beatLength);
     }
 };
