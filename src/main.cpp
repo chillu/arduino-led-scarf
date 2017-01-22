@@ -30,11 +30,12 @@
 #include <Sinelon.h>
 #include <Confetti.h>
 
+#include <BrightnessControl.h>
+
 // ui
 int mode = 1;
 int modeCount = 2;
 Bounce modeButton;
-Bounce brightnessButton;
 Bounce beatButton;
 
 CRGB ledsCh0[NUM_LEDS_CH0];
@@ -47,9 +48,9 @@ CRGBPalette16 palette(CRGB::Black, CRGB::Red, CRGB::Yellow, CRGB::White);
 Pattern *patternItems[] = { new Plasma(), new Juggle(), new Sinelon(), new Confetti() };
 PatternList patternList(4, patternItems);
 
+BrightnessControl brightnessControl(BRIGHTNESS_BUTTON_PIN);
+
 // config
-int currentBrightnessIndex = 1; // start with medium brightness
-byte brightnesses[] = {30,60,90};
 int staticBpm = 60; // in case no pulse is found
 int pulseBpm = 0; // actually detected value
 int maxBpm = 180; // avoids the system going crazy
@@ -99,15 +100,6 @@ void updateModeFromButton() {
   modeButton.update();
   if(modeButton.fell()) {
     patternList.next();
-  }
-}
-
-void updateBrightnessFromButton() {
-  brightnessButton.update();
-  if(brightnessButton.fell()) {
-    currentBrightnessIndex = ((currentBrightnessIndex + 1) % 3);
-    Serial.print("currentBrightnessIndex: ");
-    Serial.println(currentBrightnessIndex);
   }
 }
 
@@ -269,13 +261,11 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
 
+  brightnessControl.setup();
+
   pinMode(MODE_BUTTON_PIN, INPUT_PULLUP);
   modeButton.attach(MODE_BUTTON_PIN);
   modeButton.interval(50);
-
-  pinMode(BRIGHTNESS_BUTTON_PIN, INPUT_PULLUP);
-  brightnessButton.attach(BRIGHTNESS_BUTTON_PIN);
-  brightnessButton.interval(50);
 
   pinMode(BEAT_BUTTON_PIN, INPUT_PULLUP);
   beatButton.attach(BEAT_BUTTON_PIN);
@@ -292,9 +282,9 @@ void setup() {
 
 void loop() {
   updateModeFromButton();
-  updateBrightnessFromButton();
 
-  // int brightness = brightnesses[currentBrightnessIndex];
+  brightnessControl.update();
+  FastLED.setBrightness(brightnessControl.getBrightness());
 
   byte fade = 0;
   patternList.loop(fade);

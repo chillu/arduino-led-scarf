@@ -42,7 +42,7 @@ class Pattern {
     void loop(byte fade)
     {
       for(int i = 0 ; i < NUM_STATES ; i++) {
-        loopForState(i, _states[i]);
+        loopForState(_states[i], fade);
       }
     }
 
