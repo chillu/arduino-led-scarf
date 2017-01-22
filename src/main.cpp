@@ -28,6 +28,7 @@
 #define NUM_LEDS_CH1 29
 #define FRAME_LENGTH 33 // 30 fps
 #define NUM_STATES 2
+#define MAX_MILLIAMPS 500 // should run for ~8h on 2x2000maH 18650
 
 #include <Pattern.h>
 #include <PatternList.h>
@@ -80,6 +81,9 @@ void setup() {
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(ledsCh1, NUM_LEDS_CH1);
 
   Serial.begin(BAUD_RATE);
+
+  // https://github.com/FastLED/FastLED/wiki/Power-notes#managing-power-in-fastled
+  FastLED.setMaxPowerInVoltsAndMilliamps(5,MAX_MILLIAMPS);
 
   brightnessControl.setup();
   FastLED.setBrightness(brightnessControl.getBrightness());

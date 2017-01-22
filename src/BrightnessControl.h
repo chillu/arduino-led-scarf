@@ -3,7 +3,7 @@
 class BrightnessControl {
   Bounce button;
   int index = 1; // start with medium brightness
-  byte brightnesses[3] = {30,60,90};
+  byte brightnesses[3] = {20,50,80};
   int pin;
 
 public:
