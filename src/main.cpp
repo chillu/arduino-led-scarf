@@ -55,14 +55,14 @@ PatternState stateCh1(NUM_LEDS_CH1, ledsCh1);
 
 Heartbeat *heartbeat = new Heartbeat();
 Pattern *patternItems[] = {
-  new Bpm()
+  new Bpm(),
   heartbeat,
   new Plasma(),
   new Juggle(),
   new Sinelon(),
   new Confetti()
 };
-PatternList patternList(1, patternItems);
+PatternList patternList(6, patternItems);
 
 CRGBPalette16 *paletteItems[] = {
   new CRGBPalette16(
@@ -168,12 +168,14 @@ void loop() {
 
   // Mode and Palette
   modeControl.update();
-  if(modeControl.fell()) {
-    patternList.next();
-    // TODO Long press mode
-    // CRGBPalette16 *palette = paletteList.next();
-    // stateCh0.palette = palette;
-    // stateCh1.palette = palette;
+  if(modeControl.rose()) {
+    if(modeControl.wasLongPress()) {
+      CRGBPalette16 *palette = paletteList.next();
+      stateCh0.palette = palette;
+      stateCh1.palette = palette;
+    } else {
+      patternList.next();
+    }
   }
   Pattern *currPattern = patternList.curr();
 
