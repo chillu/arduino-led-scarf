@@ -18,11 +18,6 @@ class PatternState {
      */
     byte *activation;
 
-    /**
-     * A palette to for the patterns to use.
-     */
-    CRGBPalette16 *_palette;
-
   public:
     /**
      * The LEDs to write to
@@ -30,6 +25,11 @@ class PatternState {
     CRGB *leds;
 
     byte ledsSize;
+
+    /**
+     * A palette to for the patterns to use.
+     */
+    CRGBPalette16 *palette;
 
     PatternState(byte _ledsSize, CRGB *_leds): activation(0)
     {
@@ -53,16 +53,6 @@ class PatternState {
       }
 
       return activation;
-    };
-
-    void setPalette(CRGBPalette16 *palette)
-    {
-      _palette = palette;
-    };
-
-    CRGBPalette16 *getPalette()
-    {
-      return _palette;
     };
 
 };

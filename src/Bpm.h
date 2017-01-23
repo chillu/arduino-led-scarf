@@ -13,10 +13,9 @@ class Bpm: public Pattern {
   public:
     void loopForState(PatternState *state, byte fade)
     {
-      CRGBPalette16 *palette = state->palette;
       uint8_t beat = beatsin8( bpm, 64, 255);
       for( int i = 0; i < state->ledsSize; i++) { //9948
-        state->leds[i] = ColorFromPalette(palette, gHue+(i*2), beat-gHue+(i*10));
+        state->leds[i] = ColorFromPalette(*state->palette, gHue+(i*2), beat-gHue+(i*10));
       }
 
       EVERY_N_MILLISECONDS( 20 ) { gHue++; }

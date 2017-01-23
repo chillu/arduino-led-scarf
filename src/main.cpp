@@ -33,6 +33,7 @@
 #include <Pattern.h>
 #include <PatternList.h>
 #include <PatternState.h>
+#include <PaletteList.h>
 
 #include <Plasma.h>
 #include <Juggle.h>
@@ -52,10 +53,16 @@ PatternState stateCh0(NUM_LEDS_CH0, ledsCh0);
 CRGB ledsCh1[NUM_LEDS_CH1];
 PatternState stateCh1(NUM_LEDS_CH1, ledsCh1);
 
-CRGBPalette16 palette(CRGB::Black, CRGB::Red, CRGB::Yellow, CRGB::White);
 Heartbeat *heartbeat = new Heartbeat();
-Pattern *patternItems[] = { heartbeat, new Plasma(), new Juggle(), new Sinelon(), new Confetti() };
-PatternList patternList(5, patternItems);
+Pattern *patternItems[] = { new Bpm(), heartbeat, new Plasma(), new Juggle(), new Sinelon(), new Confetti() };
+PatternList patternList(6, patternItems);
+
+CRGBPalette16 *paletteItems[] = {
+  new CRGBPalette16(CRGB::Black, CRGB::Red, CRGB::Yellow, CRGB::White),
+  new CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::White)
+};
+PaletteList paletteList(2, paletteItems);
+
 
 BrightnessControl brightnessControl(BRIGHTNESS_BUTTON_PIN);
 ModeControl modeControl(MODE_BUTTON_PIN);
@@ -93,10 +100,10 @@ void setup() {
 
   beatControl.setup();
 
-  stateCh0.setPalette(&palette);
+  stateCh0.palette = paletteList.curr();
   patternList.setState(0, &stateCh0);
 
-  stateCh1.setPalette(&palette);
+  stateCh1.palette = paletteList.curr();
   patternList.setState(1, &stateCh1);
 
   // updateModeFromEEPROM();
@@ -110,11 +117,16 @@ void loop() {
   brightnessControl.update();
   FastLED.setBrightness(brightnessControl.getBrightness());
 
-  // Mode
+  // Mode and Palette
   modeControl.update();
   if(modeControl.fell()) {
     patternList.next();
+    // TODO Long press mode
+    // CRGBPalette16 *palette = paletteList.next();
+    // stateCh0.palette = palette;
+    // stateCh1.palette = palette;
   }
+  Pattern *currPattern = patternList.curr();
 
   // Beat
   int bpm;
@@ -134,7 +146,6 @@ void loop() {
   }
 
   // Patterns
-  Pattern *currPattern = patternList.curr();
   int frameLength = currPattern->getFrameLength();
   // Should use EVERY_N_MILLISECONDS, but the C++ macro
   // can't seem to change values dynamically
