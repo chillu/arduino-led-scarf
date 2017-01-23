@@ -39,6 +39,7 @@
 #include <Sinelon.h>
 #include <Confetti.h>
 #include <Heartbeat.h>
+#include <Bpm.h>
 
 #include <BrightnessControl.h>
 #include <ModeControl.h>
@@ -120,7 +121,7 @@ void loop() {
   beatControl.update();
   bpm = beatControl.getBpm();
   EVERY_N_MILLISECONDS(100) {
-    heartbeat->setBpm(bpm);
+    currPattern->setBpm(bpm);
   }
 
   // Accelleration

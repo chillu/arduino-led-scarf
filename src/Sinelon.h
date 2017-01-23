@@ -19,4 +19,9 @@ class Sinelon: public Pattern {
 
       EVERY_N_MILLISECONDS( 20 ) { gHue++; }
     }
+
+    int getFrameLength()
+    {
+      return 1000 / bpm / 2;
+    }
 };

@@ -12,6 +12,7 @@ class Pattern {
 
   protected:
     PatternState *_states[NUM_STATES];
+    int bpm = 120;
 
   public:
     /**
@@ -49,6 +50,11 @@ class Pattern {
     virtual int getFrameLength()
     {
       return FRAME_LENGTH;
+    }
+
+    void setBpm(int _bpm)
+    {
+      bpm = _bpm;
     }
 
 };

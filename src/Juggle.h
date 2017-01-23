@@ -14,4 +14,9 @@ class Juggle: public Pattern {
         dothue += 32;
       }
     }
+
+    int getFrameLength()
+    {
+      return 1000 / bpm / 2;
+    }
 };

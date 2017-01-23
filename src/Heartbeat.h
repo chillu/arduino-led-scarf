@@ -23,7 +23,6 @@ class Heartbeat: public Pattern {
   int maxMagnitude = 40; // max difference between two magnitude measurements
 
   // state
-  int bpm = 120;
   byte bufr[NUM_LEDS_CH0]; // TODO Remove hardcoding, relies on first channel being "split" mode
   byte offset = 0;
   int magnitude = 10;
@@ -107,11 +106,6 @@ class Heartbeat: public Pattern {
     void setMagnitude(int _magnitude)
     {
       magnitude = _magnitude;
-    }
-
-    void setBpm(int _bpm)
-    {
-      bpm = _bpm;
     }
 
     int getFrameLength()
