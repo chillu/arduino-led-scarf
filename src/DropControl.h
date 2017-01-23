@@ -42,6 +42,11 @@ public:
     return _button.rose();
   }
 
+  int read()
+  {
+    return _button.read();
+  }
+
   /**
    * Was the last press a long one?
    */

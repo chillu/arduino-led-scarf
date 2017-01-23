@@ -15,6 +15,7 @@ class Pattern {
     int bpm = 120;
     bool onBeat = false;
     float beatProgress = 0;
+    bool isDropping = false;
 
   public:
     /**
@@ -67,6 +68,11 @@ class Pattern {
     void setBeatProgress(float _beatProgress)
     {
       beatProgress = _beatProgress;
+    }
+
+    void setIsDropping(bool _isDropping)
+    {
+      isDropping = _isDropping;
     }
 
 };

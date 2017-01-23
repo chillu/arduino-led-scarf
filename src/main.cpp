@@ -167,10 +167,6 @@ void loop() {
   // Timing
   unsigned long currentMillis = millis();
 
-  // Brightness
-  brightnessControl.update();
-  FastLED.setBrightness(brightnessControl.getBrightness());
-
   // Mode and Palette
   modeControl.update();
   if(modeControl.rose()) {
@@ -192,9 +188,7 @@ void loop() {
 
   // Drop
   dropControl.update();
-  if(dropControl.fell()) {
-    patternList.next();
-  }
+  currPattern->setIsDropping((dropControl.read() == LOW));
 
   // Accelleration
   int magnitude;
@@ -212,6 +206,11 @@ void loop() {
   if(currentMillis - previousMillis > frameLength) {
     previousMillis = currentMillis;
     patternList.loop(0);
+
+    // Brightness
+    brightnessControl.update();
+    FastLED.setBrightness(brightnessControl.getBrightness());
+
     FastLED.show();
   }
 
