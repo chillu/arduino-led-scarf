@@ -54,14 +54,63 @@ CRGB ledsCh1[NUM_LEDS_CH1];
 PatternState stateCh1(NUM_LEDS_CH1, ledsCh1);
 
 Heartbeat *heartbeat = new Heartbeat();
-Pattern *patternItems[] = { new Bpm(), heartbeat, new Plasma(), new Juggle(), new Sinelon(), new Confetti() };
-PatternList patternList(6, patternItems);
+Pattern *patternItems[] = {
+  new Bpm()
+  heartbeat,
+  new Plasma(),
+  new Juggle(),
+  new Sinelon(),
+  new Confetti()
+};
+PatternList patternList(1, patternItems);
 
 CRGBPalette16 *paletteItems[] = {
-  new CRGBPalette16(CRGB::Black, CRGB::Red, CRGB::Yellow, CRGB::White),
-  new CRGBPalette16(CRGB::Black, CRGB::Blue, CRGB::White)
+  new CRGBPalette16(
+    CRGB::Blue,
+    CRGB::DarkBlue,
+    CRGB::DarkBlue,
+    CRGB::DarkBlue,
+    CRGB::DarkBlue,
+    CRGB::DarkBlue,
+    CRGB::DarkBlue,
+    CRGB::DarkBlue,
+    CRGB::Blue,
+    CRGB::DarkBlue,
+    CRGB::SkyBlue,
+    CRGB::SkyBlue,
+    CRGB::LightBlue,
+    CRGB::White,
+    CRGB::LightBlue,
+    CRGB::SkyBlue
+  ),
+  // Lava
+  new CRGBPalette16(
+    CRGB::Black,
+    CRGB::Maroon,
+    CRGB::Black,
+    CRGB::Maroon,
+    CRGB::DarkRed,
+    CRGB::Maroon,
+    CRGB::DarkRed,
+    CRGB::DarkRed,
+    CRGB::DarkRed,
+    CRGB::Red,
+    CRGB::Orange,
+    CRGB::White,
+    CRGB::Orange,
+    CRGB::Red,
+    CRGB::DarkRed,
+    CRGB::Black
+  ),
+  // Rainbow
+  new CRGBPalette16(
+    0xFF0000, 0xD52A00, 0xAB5500, 0xAB7F00,
+    0xABAB00, 0x56D500, 0x00FF00, 0x00D52A,
+    0x00AB55, 0x0056AA, 0x0000FF, 0x2A00D5,
+    0x5500AB, 0x7F0081, 0xAB0055, 0xD5002B
+  )
 };
-PaletteList paletteList(2, paletteItems);
+PaletteList paletteList(3, paletteItems);
 
 
 BrightnessControl brightnessControl(BRIGHTNESS_BUTTON_PIN);

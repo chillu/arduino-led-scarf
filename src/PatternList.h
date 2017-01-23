@@ -34,9 +34,10 @@ class PatternList {
     /**
      * Switch to the next ponattern
      */
-    void next() {
+    Pattern* next() {
       _curPattern = (_curPattern + 1) % _numPatterns;
       setup();
+      return _patterns[_curPattern];
     }
 
     Pattern* curr()

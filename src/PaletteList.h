@@ -16,7 +16,7 @@ class PaletteList {
      */
     CRGBPalette16* next() {
       _curr = (_curr + 1) % _num;
-      return _curr;
+      return _palettes[_curr];
     }
 
     CRGBPalette16* curr()
