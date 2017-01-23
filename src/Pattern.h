@@ -13,6 +13,8 @@ class Pattern {
   protected:
     PatternState *_states[NUM_STATES];
     int bpm = 120;
+    bool onBeat = false;
+    float beatProgress = 0;
 
   public:
     /**
@@ -55,6 +57,16 @@ class Pattern {
     void setBpm(int _bpm)
     {
       bpm = _bpm;
+    }
+
+    void setOnBeat(bool _onBeat)
+    {
+      onBeat = _onBeat;
+    }
+
+    void setBeatProgress(float _beatProgress)
+    {
+      beatProgress = _beatProgress;
     }
 
 };

@@ -25,4 +25,14 @@ public:
   {
     return tapTempo.getBPM();
   }
+
+  bool onBeat()
+  {
+    return tapTempo.onBeat();
+  }
+
+  float beatProgress()
+  {
+    return tapTempo.beatProgress();
+  }
 };

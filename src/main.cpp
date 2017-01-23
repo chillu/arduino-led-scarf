@@ -129,12 +129,10 @@ void loop() {
   Pattern *currPattern = patternList.curr();
 
   // Beat
-  int bpm;
   beatControl.update();
-  bpm = beatControl.getBpm();
-  EVERY_N_MILLISECONDS(100) {
-    currPattern->setBpm(bpm);
-  }
+  currPattern->setBpm(beatControl.getBpm());
+  currPattern->setOnBeat(beatControl.onBeat());
+  currPattern->setBeatProgress(beatControl.beatProgress());
 
   // Accelleration
   int magnitude;
