@@ -14,6 +14,7 @@
 #define LED_PIN_CH1 4
 #define LED_PIN_CH2 2
 #define MODE_BUTTON_PIN 6
+#define DROP_BUTTON_PIN 7
 #define BRIGHTNESS_BUTTON_PIN 8
 #define BEAT_BUTTON_PIN 10
 
@@ -45,6 +46,7 @@
 #include <BrightnessControl.h>
 #include <ModeControl.h>
 #include <BeatControl.h>
+#include <DropControl.h>
 #include <AccellerationControl.h>
 
 CRGB ledsCh0[NUM_LEDS_CH0];
@@ -116,6 +118,7 @@ PaletteList paletteList(3, paletteItems);
 BrightnessControl brightnessControl(BRIGHTNESS_BUTTON_PIN);
 ModeControl modeControl(MODE_BUTTON_PIN);
 BeatControl beatControl(BEAT_BUTTON_PIN);
+DropControl dropControl(DROP_BUTTON_PIN);
 AccellerationControl accellerationControl(ACCELX_PIN, ACCELY_PIN, ACCELZ_PIN);
 
 // See https://learn.adafruit.com/multi-tasking-the-arduino-part-1/using-millis-for-timing
@@ -148,6 +151,8 @@ void setup() {
   modeControl.setup();
 
   beatControl.setup();
+
+  dropControl.setup();
 
   stateCh0.palette = paletteList.curr();
   patternList.setState(0, &stateCh0);
@@ -184,6 +189,12 @@ void loop() {
   currPattern->setBpm(beatControl.getBpm());
   currPattern->setOnBeat(beatControl.onBeat());
   currPattern->setBeatProgress(beatControl.beatProgress());
+
+  // Drop
+  dropControl.update();
+  if(dropControl.fell()) {
+    patternList.next();
+  }
 
   // Accelleration
   int magnitude;
