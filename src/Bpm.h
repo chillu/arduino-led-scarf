@@ -19,7 +19,6 @@ class Bpm: public Pattern {
   void loopDefault(PatternState *state)
   {
     int halfPoint = (int)state->ledsSize/2;
-    uint8_t beat = beatsin8( bpm, 64, 255);
     // Serial.println("####");
     // Serial.print("beat: ");
     // Serial.print(beat);
@@ -27,8 +26,9 @@ class Bpm: public Pattern {
     // Serial.print("ghue: ");
     // Serial.print(gHue);
     // Serial.println();
+    uint8_t beat = beat8( bpm);
 
-    for( int i = 0; i < halfPoint; i++) {
+    for( int i = 0; i <= halfPoint; i++) {
       CRGB color = ColorFromPalette(*state->palette, gHue+(i*2), beat-gHue+(i*10));
       state->leds[i] = color;
       state->leds[state->ledsSize - i - 1] = color;
