@@ -61,7 +61,8 @@ class Bpm: public Pattern {
     // flash for the first beat (of four)
     if( beatProgress < 0.25 ) {
       for( int i = 0; i < state->ledsSize; i++) {
-        state->leds[i] = CRGB::White;
+        // One in three chance of lighting up
+        state->leds[i] = (random8(3) == 0) ? CRGB::White : CRGB::Black;
       }
     } else {
       for( int i = 0; i < state->ledsSize; i++) {
