@@ -20,7 +20,7 @@ class Confetti: public Pattern {
         state->leds[pos] += CHSV( gHue + random8(64), 200, 255);
       } else {
         // Default Palette
-        state->leds[pos] += CHSV( 255, 200, 255);
+        state->leds[pos] += ColorFromPalette(*state->palette, gHue, 255);
       }
 
       EVERY_N_MILLISECONDS( 20 ) { gHue++; }
