@@ -36,8 +36,8 @@ class Bpm: public Pattern {
         if (max >= state->ledsSize) {
           max = state->ledsSize - 1;
         }
-        state->leds[ min ] = firstColor;
-        // state->leds[ random16(min,max) ] += CRGB::White;
+        // state->leds[ min ] = firstColor;
+        state->leds[ random16(min,max) ] = CRGB::White;
       }
     }
 
