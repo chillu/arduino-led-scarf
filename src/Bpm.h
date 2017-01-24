@@ -27,8 +27,8 @@ class Bpm: public Pattern {
       state->leds[state->ledsSize - i - 1] = color;
     }
 
-    // Add some glitter on the first beat (of four)
-    if (beatProgress < 0.25) {
+    // Add some glitter on parts the first beat (of four)
+    if (beatProgress < 0.15) {
       CRGB firstColor = ColorFromPalette(*state->palette, gHue, 255);
       for ( int j = 0; j < (int)(state->ledsSize/glitterFrame); j++ ) {
         int min = glitterFrame * j;
