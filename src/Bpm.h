@@ -28,9 +28,10 @@ class Bpm: public Pattern {
     // Serial.print(gHue);
     // Serial.println();
 
-    for( int i = 0; i < state->ledsSize; i++) {
+    for( int i = 0; i < halfPoint; i++) {
       CRGB color = ColorFromPalette(*state->palette, gHue+(i*2), beat-gHue+(i*10));
       state->leds[i] = color;
+      state->leds[state->ledsSize - i - 1] = color;
       // Serial.print("index: ");
       // Serial.print(gHue+(i*2));
       // Serial.print("\t");
