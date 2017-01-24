@@ -11,7 +11,7 @@
 class Heartbeat: public Pattern {
 
   // config
-  byte beat[22]  = {2,2,2,2,3,4,3,2,1,0,10,2,2,3,4,6,8,5,3,3,3,3}; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
+  byte beat[22]  = {10,2,2,3,4,6,8,5,3,3,3,3,2,2,2,2,3,4,3,2,1,0}; // From http://ecg.utah.edu/img/items/Normal%2012_Lead%20ECG.jpg
   int beatLength = 22;
   int beatMaxIntensity = 10; // max value in beat array
   int movesPerBeat = 2; // determines the speed, not the tempo
