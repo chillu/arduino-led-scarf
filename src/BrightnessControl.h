@@ -2,8 +2,8 @@
 
 class BrightnessControl {
   Bounce button;
-  int index = 1; // start with medium brightness
-  byte brightnesses[3] = {20,50,80};
+  int index = 0; // start with lowest brightness
+  byte brightnesses[3] = {20,40,60}; // 0 to 255
   int pin;
 
 public:
@@ -24,7 +24,7 @@ public:
     button.update();
     if(button.fell()) {
       index = ((index + 1) % 3);
-      Serial.print("index: ");
+      Serial.print("brightness: ");
       Serial.println(index);
     }
   }
