@@ -4,7 +4,7 @@ class ModeControl {
   Bounce _button;
   int pin;
   unsigned long _millisAtPress = 0;
-  int _longPressMillis = 1000;
+  int _longPressMillis = 500;
   bool _wasLongPress = false;
 
 public:
