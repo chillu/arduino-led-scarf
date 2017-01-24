@@ -137,6 +137,9 @@ long previousMillis = 0;
 // }
 
 void setup() {
+  // Sanity delay
+  delay(500);
+
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH1>(ledsCh0, NUM_LEDS_CH0);
   FastLED.addLeds<NEOPIXEL, LED_PIN_CH2>(ledsCh1, NUM_LEDS_CH1);
 
