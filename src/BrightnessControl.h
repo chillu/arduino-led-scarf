@@ -3,7 +3,7 @@
 class BrightnessControl {
   Bounce button;
   int index = 0; // start with lowest brightness
-  byte brightnesses[3] = {20,40,60}; // 0 to 255
+  byte brightnesses[3] = {20,40,60}; // 0 to 100
   int pin;
 
 public:
