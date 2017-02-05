@@ -14,6 +14,21 @@ for maximum awesomeness on electronic music.
 
 Check out more modes in the [full video](https://vimeo.com/202582452).
 
+## Features
+
+ * Beat button (button 1): Tap out beats, the patterns will adjust their speed
+ * Brightness switcher (button 2): Three brightness levels, avoid blinding people in dark spaces
+ * Mode switcher (button 3)
+  * BPM: Trails emanating from the scarf centre, down both halves
+  * Heartbeat: Trails following the human heart beat curve
+  * Plasma: Sine wave (single factor plasma) that moves up the strip
+  * Juggle: Eight colored dots, weaving in and out of sync with each other
+  * Sinelon: A colored dot sweeping back and forth, with fading trails
+  * Confetti: Colourful, randomized dots in main palette colour.
+    Drop mode switches to rainbow colours.
+ * Palette switcher (long-press button 3): Three palettes built-in (ocean, lava, rainbow)
+ * Drop mode (button 4): Brighter variations of the current mode (e.g. strobe mode)
+
 ## Software
 
 You'll need [Platform.io](http://platformio.org/) to build this (or move some files around to build with the default Arduino IDE).
@@ -21,14 +36,19 @@ You'll need [Platform.io](http://platformio.org/) to build this (or move some fi
 ## Shopping List
 
  * 1x Arduino Nano
- * 150ish Neopixel LEDs
- * 2x 18650 battery (plus holders)
- * 1x 3DOF accellerometer
+ * 150ish [Neopixel LEDs](https://learn.adafruit.com/adafruit-neopixel-uberguide/overview)
+ * 2x 18650 battery (plus [holders](https://www.aliexpress.com/item/New-18650-Battery-Holder-Box-Case-Black-With-Wire-Lead-3-7V-Clip-5-Pcs-high/32580480645.html?spm=2114.13010608.0.0.yXEwNk))
+ * 1x 3DOF accelerometer
  * 4x push buttons
  * 2x power switches
- * 1x Veroboard (optional)
+ * 1x [Veroboard](https://www.aliexpress.com/item/10-pcs-lot-universal-Stripboard-Veroboard-vero-Board-Single-Side-5x7cm-bakelite-universal-experiment-circuit-board/32321654013.html?spm=2114.13010608.0.0.hFFUTR) (optional)
  * 2x stereo headphone connectors, for power+data (optional)
  * 1x case (lunch box)
+ * 1x 33yf/25V capacitor (optional, avoids sensor interference)
+
+## Schematics
+
+![Schematics](_fritzing/sketch.png)
 
 ## Pictures
 
@@ -46,8 +66,13 @@ You'll need [Platform.io](http://platformio.org/) to build this (or move some fi
 
 ## Notes
 
+Some hard learned lessons here, I've iterated on the concept,
+and burned through three Nanos in the process :D
+
+ * Adjust number of LEDs in main.cpp.
+ * Add an extra battery at the end of the LED strip to ensure they get enough power (see [Powering Neopixels](https://learn.adafruit.com/adafruit-neopixel-uberguide/power))
  * A Veroboard will make it easier to solder the many connections,
-   particularly ground and power lines
+   particularly with shared ground and power lines
  * The 3.5mm stereo audio jacks are used for power+data (NOT audio).
    It's a convenient and widely available form factor,
    but YYMV (JST connectors work just as well).
@@ -55,14 +80,17 @@ You'll need [Platform.io](http://platformio.org/) to build this (or move some fi
    but it also makes the LED strips more reuseable.
  * With a max. draw of 500mAh (and a lot lower average),
    the batteries can power the scarf for around two nights of partying.
+ * Keep cables long for the inevitable resolder (size your case accordingly)
+ * Add some hot glue to make a waterproof case from a lunchbox
 
 
 ## Thanks
 
  * [bnolan](http://github.com/bnolan): For the hard work on the heartbeat visualisation
- * [sminnee](http://github.com/sminnee): For infinite resources in little electronic bits (nanos, connectors, buttons, you name it)
+ * [sminnee](http://github.com/sminnee): For infinite resources in little electronic bits (nanos, connectors, buttons, you name it). Sam also wrote the bulk of the pattern list classes.
  * [stojg](http://github.com/stojg): For invaluable advice on how not to fuck up electronics (turns out you need capacitors!)
  * [caffeineinc](http://github.com/caffeineinc): For keeping my sanity, and the PARTY PANTS
+ * [camp8bit](http://github.com/camp8bit): For a theme camp with great people
 
 ## LICENSE
 
