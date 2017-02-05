@@ -20,7 +20,8 @@ Check out more modes in the [full video](https://vimeo.com/202582452).
  * Brightness switcher (button 2): Three brightness levels, avoid blinding people in dark spaces
  * Mode switcher (button 3)
   * BPM: Trails emanating from the scarf centre, down both halves
-  * Heartbeat: Trails following the human heart beat curve
+  * Heartbeat: Trails following the human heart beat curve.
+    Hooked up to the accelerometer, to show blue hues without movement, and red hues when dancing.
   * Plasma: Sine wave (single factor plasma) that moves up the strip
   * Juggle: Eight colored dots, weaving in and out of sync with each other
   * Sinelon: A colored dot sweeping back and forth, with fading trails
